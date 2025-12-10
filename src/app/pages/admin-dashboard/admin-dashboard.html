@@ -1,0 +1,265 @@
+<div class="min-h-screen bg-base-200 p-4 md:p-8 font-sans">
+  
+  <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+    
+    <div class="flex items-center gap-3 w-full md:w-auto">
+      <div class="p-3 bg-primary bg-opacity-20 rounded-lg text-primary">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+      </div>
+      <div>
+        <h1 class="text-3xl font-bold text-base-content">Usuario Administrador</h1>
+        <p class="text-xs opacity-50">Panel de Administrador</p>
+      </div>
+    </div>
+
+    <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+      
+      <label class="input input-bordered flex items-center gap-2 w-full sm:w-80">
+        <input type="text" class="grow" placeholder="Search users..." [(ngModel)]="searchTerm" (input)="applyFilters()" />
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-4 h-4 opacity-70"><path fill-rule="evenodd" d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z" clip-rule="evenodd" /></svg>
+      </label>
+
+      <button class="btn btn-primary text-white gap-2 shadow-lg hover:scale-105 transition-transform" (click)="openModal()">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" /></svg>
+        Add Programmer
+      </button>
+      <button class="btn btn-error text-white shadow-lg hover:scale-105 transition-transform" (click)="logout()" title="Salir">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="mb-6 overflow-x-auto pb-2">
+    <div class="flex gap-2 min-w-max">
+      <button *ngFor="let spec of specialties" 
+              (click)="selectedSpecialty = spec; applyFilters()"
+              class="btn btn-sm rounded-full"
+              [ngClass]="selectedSpecialty === spec ? 'btn-neutral text-white' : 'btn-ghost'">
+        {{ spec }}
+      </button>
+    </div>
+  </div>
+
+  <div class="card bg-base-100 shadow-xl overflow-hidden border border-base-300">
+    <div class="overflow-x-auto">
+      <table class="table w-full">
+        <thead class="bg-base-200 text-base-content font-bold uppercase text-xs">
+          <tr>
+            <th>Name</th>
+            <th>Specialty</th>
+            <th>Description</th>
+            <th>Contact</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="isLoading">
+            <td colspan="5" class="text-center py-10">
+              <span class="loading loading-spinner loading-lg text-primary"></span>
+              <p class="mt-2 text-sm opacity-50">Cargando datos...</p>
+            </td>
+          </tr>
+
+          <tr *ngFor="let p of filteredProgrammers" class="hover:bg-base-200 transition-colors duration-200">
+            <td>
+              <div class="flex items-center gap-3">
+                <div class="avatar placeholder">
+                  <div class="bg-neutral text-neutral-content rounded-full w-10">
+                    <span *ngIf="!p.photoUrl" class="text-xs">{{ p.name.substring(0,2).toUpperCase() }}</span>
+                    <img *ngIf="p.photoUrl" [src]="p.photoUrl" alt="Avatar" />
+                  </div>
+                </div>
+                <div>
+                  <div class="font-bold">{{ p.name }}</div>
+                  <div class="text-xs opacity-50">{{ p.id?.substring(0,6) }}</div>
+                </div>
+              </div>
+            </td>
+            <td><div class="badge badge-outline badge-primary font-bold">{{ p.specialty }}</div></td>
+            <td><p class="truncate w-40 text-sm opacity-70" title="{{ p.description }}">{{ p.description || '...' }}</p></td>
+            <td>
+              <div class="flex flex-col text-xs gap-1">
+                <span class="font-mono opacity-80">{{ p.contact.email }}</span>
+                <div class="flex gap-2">
+                   <a *ngIf="p.contact.linkedin" [href]="p.contact.linkedin" target="_blank" class="link link-primary">Li</a>
+                   <a *ngIf="p.contact.github" [href]="p.contact.github" target="_blank" class="link link-accent">Git</a>
+                </div>
+              </div>
+            </td>
+            
+            <td>
+              <div class="flex gap-2">
+                
+                <button class="btn btn-ghost btn-xs text-info tooltip" data-tip="Editar" (click)="editProgrammer(p)">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                  </svg>
+                </button>
+
+                <button class="btn btn-ghost btn-xs text-warning tooltip" data-tip="Gestionar Horarios" (click)="openScheduleModal(p)">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </button>
+                
+                <button class="btn btn-ghost btn-xs text-error tooltip" data-tip="Eliminar" (click)="deleteProgrammer(p.id)">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                </button>
+              </div>
+            </td>
+
+          </tr>
+        </tbody>
+      </table>
+      
+      <div *ngIf="!isLoading && filteredProgrammers.length === 0" class="text-center p-10 opacity-50 border-t border-base-200">
+        <p>No se encontraron programadores.</p>
+        <button class="btn btn-link btn-sm" (click)="openModal()">¡Agrega el primero!</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal modal-bottom sm:modal-middle" [class.modal-open]="isModalOpen">
+  <div class="modal-box bg-base-100 shadow-2xl border border-base-300">
+    
+    <h3 class="font-bold text-xl text-primary mb-4 flex items-center gap-2">
+      <span>{{ isEditing ? '✏️' : '✨' }}</span> 
+      {{ isEditing ? 'Editar Programador' : 'Registrar Nuevo Talento' }}
+    </h3>
+    
+    <div class="form-control gap-3">
+      
+      <div class="flex flex-col sm:flex-row gap-3">
+        <div class="w-full">
+          <label class="label"><span class="label-text">Nombre Completo *</span></label>
+          <input type="text" [(ngModel)]="newProgrammer.name" name="nombre" placeholder="Ej. Alex Dev" class="input input-bordered w-full" />
+        </div>
+        <div class="w-full">
+          <label class="label"><span class="label-text">Especialidad</span></label>
+          <select [(ngModel)]="newProgrammer.specialty" name="especialidad" class="select select-bordered w-full">
+            <option>Frontend Developer</option>
+            <option>Backend Developer</option>
+            <option>Full-Stack Developer</option>
+            <option>DevOps Engineer</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label class="label"><span class="label-text">Foto de Perfil (URL)</span></label>
+        <input type="text" [(ngModel)]="newProgrammer.photoUrl" name="foto" placeholder="https://imgur.com/..." class="input input-bordered w-full" />
+      </div>
+
+      <div>
+        <label class="label"><span class="label-text">Descripción</span></label>
+        <textarea [(ngModel)]="newProgrammer.description" name="desc" class="textarea textarea-bordered w-full" placeholder="Breve biografía profesional..."></textarea>
+      </div>
+
+      <div class="divider text-xs opacity-50 font-bold">CONTACTO</div>
+
+      <div>
+        <label class="label"><span class="label-text">Correo Electrónico *</span></label>
+        <input type="email" [(ngModel)]="newProgrammer.contact.email" name="email" placeholder="dev@empresa.com" class="input input-bordered w-full" />
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="label"><span class="label-text text-xs">LinkedIn (Opcional)</span></label>
+          <input type="text" [(ngModel)]="newProgrammer.contact.linkedin" name="linkedin" placeholder="URL Perfil" class="input input-bordered input-sm w-full" />
+        </div>
+        <div>
+          <label class="label"><span class="label-text text-xs">GitHub (Opcional)</span></label>
+          <input type="text" [(ngModel)]="newProgrammer.contact.github" name="github" placeholder="URL Repo" class="input input-bordered input-sm w-full" />
+        </div>
+      </div>
+
+    </div>
+
+    <div class="modal-action mt-6">
+      <button class="btn btn-ghost hover:bg-base-200" (click)="closeModal()">Cancelar</button>
+      
+      <button class="btn btn-primary px-8" (click)="saveProgrammer()">
+        {{ isEditing ? 'Actualizar Cambios' : 'Guardar Nuevo' }}
+      </button>
+    </div>
+
+  </div>
+  
+  <form method="dialog" class="modal-backdrop">
+    <button (click)="closeModal()">close</button>
+  </form>
+</div>
+
+<div class="modal modal-bottom sm:modal-middle" [class.modal-open]="isScheduleModalOpen">
+  <div class="modal-box bg-base-100 border border-base-300">
+    
+    <h3 class="font-bold text-lg text-warning flex items-center gap-2 mb-4">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+      Horarios de: <span class="text-base-content">{{ currentProgrammerName }}</span>
+    </h3>
+
+    <div class="bg-base-200 p-4 rounded-box mb-4">
+      <div class="grid grid-cols-3 gap-2 items-end">
+        
+        <div class="form-control w-full">
+          <label class="label"><span class="label-text text-xs">Día</span></label>
+          <select [(ngModel)]="newSchedule.day" class="select select-bordered select-sm w-full">
+            <option *ngFor="let day of daysOfWeek">{{ day }}</option>
+          </select>
+        </div>
+
+        <div class="form-control w-full">
+          <label class="label"><span class="label-text text-xs">Desde</span></label>
+          <input type="time" [(ngModel)]="newSchedule.start" class="input input-bordered input-sm w-full" />
+        </div>
+
+        <div class="form-control w-full">
+          <label class="label"><span class="label-text text-xs">Hasta</span></label>
+          <input type="time" [(ngModel)]="newSchedule.end" class="input input-bordered input-sm w-full" />
+        </div>
+
+      </div>
+      <button class="btn btn-warning btn-sm btn-block mt-3" (click)="addSchedule()">
+        + Agregar Franja Horaria
+      </button>
+    </div>
+
+    <div class="overflow-y-auto max-h-48 border border-base-300 rounded-lg">
+      <table class="table table-zebra table-xs w-full">
+        <thead>
+          <tr>
+            <th>Día</th>
+            <th>Inicio</th>
+            <th>Fin</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let sch of tempSchedules; let i = index">
+            <td class="font-bold">{{ sch.day }}</td>
+            <td>{{ sch.start }}</td>
+            <td>{{ sch.end }}</td>
+            <td class="text-right">
+              <button class="btn btn-ghost btn-xs text-error" (click)="removeSchedule(i)">✕</button>
+            </td>
+          </tr>
+          <tr *ngIf="tempSchedules.length === 0">
+            <td colspan="4" class="text-center py-4 opacity-50">No hay horarios registrados.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="modal-action mt-6">
+      <button class="btn btn-ghost" (click)="closeScheduleModal()">Cancelar</button>
+      <button class="btn btn-warning" (click)="saveSchedules()">Guardar Horarios</button>
+    </div>
+
+  </div>
+  <form method="dialog" class="modal-backdrop">
+    <button (click)="closeScheduleModal()">close</button>
+  </form>
+</div>

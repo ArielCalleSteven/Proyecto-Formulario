@@ -1,0 +1,150 @@
+<div class="min-h-screen bg-base-200 font-sans pb-10">
+  
+  <div class="navbar bg-base-100 shadow-sm px-4 sticky top-0 z-50">
+    <div class="flex-1">
+      <a class="btn btn-ghost text-xl normal-case gap-2">
+        <span class="text-3xl">🎓</span>
+        <span class="font-bold text-primary">Plataforma</span> Estudiantil
+      </a>
+    </div>
+    <div class="flex-none gap-2">
+      <div class="hidden md:block text-xs opacity-60 mr-2">
+        {{ currentUserEmail }}
+      </div>
+      
+      <button class="btn btn-error btn-sm text-white" (click)="logout()" title="Cerrar Sesión">
+        Salir
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+      </button>
+    </div>
+  </div>
+  <div class="bg-primary text-primary-content py-16 mb-8 shadow-lg">
+    <div class="container mx-auto px-4 text-center">
+      <h1 class="text-4xl md:text-5xl font-bold mb-4">Encuentra a tu Mentor Ideal 🚀</h1>
+      <p class="text-lg opacity-90 max-w-2xl mx-auto">
+        Reserva asesorías personalizadas con programadores expertos. 
+        Revisa sus portafolios y agenda una cita en segundos.
+      </p>
+    </div>
+  </div>
+
+  <div class="container mx-auto px-4">
+
+    <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
+      
+      <div class="tabs tabs-boxed bg-base-100 p-1 shadow-sm">
+        <a *ngFor="let spec of specialties" 
+           class="tab" 
+           [class.tab-active]="selectedSpecialty === spec"
+           (click)="selectedSpecialty = spec; applyFilters()">
+           {{ spec }}
+        </a>
+      </div>
+
+      <div class="form-control w-full md:w-auto">
+        <div class="input-group">
+          <input type="text" placeholder="Buscar por nombre..." class="input input-bordered w-full md:w-64" [(ngModel)]="searchTerm" (input)="applyFilters()" />
+          <button class="btn btn-square btn-ghost">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="isLoading" class="flex justify-center py-20">
+      <span class="loading loading-dots loading-lg text-primary"></span>
+    </div>
+
+    <div *ngIf="!isLoading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      
+      <div *ngFor="let p of filteredProgrammers" class="card bg-base-100 shadow-xl hover:shadow-2xl transition-all border border-base-200">
+        <div class="card-body items-center text-center">
+          
+          <div class="avatar mb-2">
+            <div class="w-24 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
+              <img [src]="p.photoUrl || 'https://ui-avatars.com/api/?name=' + p.name" />
+            </div>
+          </div>
+
+          <h2 class="card-title text-2xl">{{ p.name }}</h2>
+          <div class="badge badge-secondary badge-outline font-bold mb-2">{{ p.specialty }}</div>
+          <p class="text-sm opacity-70 line-clamp-2 mb-4 h-10">{{ p.description || 'Sin descripción disponible.' }}</p>
+
+          <div class="card-actions w-full justify-center flex-col gap-2">
+            <button [routerLink]="['/portfolio', p.id]" class="btn btn-outline btn-sm w-full">
+              Ver Portafolio
+            </button>
+            
+            <button class="btn btn-primary btn-sm w-full text-white shadow-lg shadow-primary/30" (click)="openBookingModal(p)">
+              📅 Agendar Asesoría
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <div *ngIf="!isLoading && filteredProgrammers.length === 0" class="text-center py-20 opacity-50">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+      <p>No encontramos programadores con esa búsqueda.</p>
+    </div>
+
+  </div>
+</div>
+
+<div class="modal modal-bottom sm:modal-middle" [class.modal-open]="isModalOpen">
+  <div class="modal-box border border-primary/20">
+    
+    <h3 class="font-bold text-xl text-primary mb-1">Agendar Asesoría</h3>
+    <p class="text-sm opacity-70 mb-4" *ngIf="selectedProgrammer">
+      Con: <span class="font-bold">{{ selectedProgrammer.name }}</span>
+    </p>
+
+    <div class="divider my-0"></div>
+
+    <div class="flex flex-col gap-4 mt-4">
+      
+      <div class="alert alert-info bg-opacity-10 text-xs py-2">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <div>
+          <span class="font-bold">Horarios Disponibles:</span>
+          <ul class="list-disc list-inside mt-1" *ngIf="selectedProgrammer?.availability?.length > 0">
+            <li *ngFor="let sch of selectedProgrammer.availability">
+              {{ sch.day }}: {{ sch.start }} - {{ sch.end }}
+            </li>
+          </ul>
+          <span *ngIf="!selectedProgrammer?.availability?.length">
+            Este programador no ha especificado horarios. Coordina por comentario.
+          </span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div class="form-control">
+          <label class="label"><span class="label-text font-bold">Fecha</span></label>
+          <input type="date" [(ngModel)]="appointment.date" class="input input-bordered w-full" />
+        </div>
+        <div class="form-control">
+          <label class="label"><span class="label-text font-bold">Hora</span></label>
+          <input type="time" [(ngModel)]="appointment.time" class="input input-bordered w-full" />
+        </div>
+      </div>
+
+      <div class="form-control">
+        <label class="label"><span class="label-text font-bold">Motivo de la Asesoría (Opcional)</span></label>
+        <textarea [(ngModel)]="appointment.comment" class="textarea textarea-bordered h-24" placeholder="Hola, necesito ayuda con mi proyecto de Angular..."></textarea>
+      </div>
+
+    </div>
+
+    <div class="modal-action">
+      <button class="btn btn-ghost" (click)="closeModal()">Cancelar</button>
+      <button class="btn btn-primary px-8" (click)="saveAppointment()">Confirmar Cita</button>
+    </div>
+
+  </div>
+  <form method="dialog" class="modal-backdrop">
+    <button (click)="closeModal()">close</button>
+  </form>
+</div>

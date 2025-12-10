@@ -1,0 +1,42 @@
+<div style="display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: sans-serif;">
+  
+  <div style="background: white; padding: 40px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center;">
+    
+    <h1 style="color: #1a73e8; margin-bottom: 10px;">Gestión de Portafolio</h1>
+    <p style="color: #666; margin-bottom: 30px;">
+      {{ isRegistering ? 'Crea tu cuenta de estudiante' : 'Inicia sesión para continuar' }}
+    </p>
+
+    <button (click)="loginWithGoogle()" 
+            style="width: 100%; background-color: #db4437; color: white; border: none; padding: 12px; border-radius: 5px; font-weight: bold; cursor: pointer; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; gap: 10px;">
+      🇬 Entrar con Google
+    </button>
+
+    <div style="display: flex; align-items: center; margin: 20px 0; color: #aaa;">
+      <hr style="flex: 1; border: 0; border-top: 1px solid #ddd;">
+      <span style="padding: 0 10px; font-size: 12px;">O USA TU CORREO</span>
+      <hr style="flex: 1; border: 0; border-top: 1px solid #ddd;">
+    </div>
+
+    <form (ngSubmit)="onSubmit()">
+      
+      <input type="email" [(ngModel)]="email" name="email" placeholder="Correo electrónico" required
+             style="width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box;">
+
+      <input type="password" [(ngModel)]="password" name="password" placeholder="Contraseña" required
+             style="width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box;">
+
+      <button type="submit" 
+              style="width: 100%; background-color: #1877f2; color: white; border: none; padding: 12px; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 16px;">
+        {{ isRegistering ? 'Registrarse' : 'Iniciar Sesión' }}
+      </button>
+
+    </form>
+
+    <div style="margin-top: 20px; font-size: 14px;">
+      <span *ngIf="!isRegistering" style="color: #000000">¿No tienes cuenta? <a href="#" (click)="isRegistering = true; $event.preventDefault()" style="color: #1877f2; text-decoration: none; font-weight: bold;">Regístrate aquí</a></span>
+      <span *ngIf="isRegistering" style="color: #000000">¿Ya tienes cuenta? <a href="#" (click)="isRegistering = false; $event.preventDefault()" style="color: #1877f2; text-decoration: none; font-weight: bold;">Inicia sesión</a></span>
+    </div>
+
+
+</div>
