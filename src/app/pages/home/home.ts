@@ -1,9 +1,9 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms'; 
-import { RouterLink, Router } from '@angular/router'; // <--- IMPORTA Router
-import { Firestore, collection, collectionData, addDoc } from '@angular/fire/firestore';
-import { Auth, signOut } from '@angular/fire/auth'; // <--- IMPORTA signOut
+import { RouterLink, Router } from '@angular/router'; 
+import { Firestore, collection, collectionData, addDoc, query, where } from '@angular/fire/firestore';
+import { Auth, signOut } from '@angular/fire/auth'; 
 
 @Component({
   selector: 'app-home',
@@ -13,31 +13,40 @@ import { Auth, signOut } from '@angular/fire/auth'; // <--- IMPORTA signOut
 })
 export class HomeComponent implements OnInit {
   private firestore = inject(Firestore);
-  private auth = inject(Auth);
-  private router = inject(Router); // <--- INYECTA EL ROUTER
+  public auth = inject(Auth); 
+  private router = inject(Router); 
 
-  // Datos
   allProgrammers: any[] = [];
   filteredProgrammers: any[] = [];
   isLoading: boolean = true;
 
-  // Filtros
   searchTerm: string = '';
   selectedSpecialty: string = 'All';
   specialties: string[] = ['All', 'Frontend Developer', 'Backend Developer', 'Full-Stack Developer', 'DevOps Engineer'];
 
-  // Modal Agendar
   isModalOpen: boolean = false;
   selectedProgrammer: any = null; 
 
-  // Objeto Cita
   appointment = { date: '', time: '', comment: '' };
 
-  // Variable para saber quién está logueado (Opcional, para mostrar su email)
   currentUserEmail: string | null = null;
 
+  myAppointments: any[] = [];
+  isMyAppointmentsModalOpen: boolean = false;
+
   ngOnInit() {
-    this.currentUserEmail = this.auth.currentUser?.email || null; // Guardamos el email
+    this.auth.onAuthStateChanged(user => {
+      if (user?.email) {
+        this.currentUserEmail = user.email;
+        
+        const appRef = collection(this.firestore, 'appointments');
+        const q = query(appRef, where('studentEmail', '==', user.email));
+        
+        collectionData(q).subscribe(data => {
+          this.myAppointments = data;
+        });
+      }
+    });
 
     const ref = collection(this.firestore, 'programmers');
     collectionData(ref, { idField: 'id' }).subscribe((data) => {
@@ -47,7 +56,9 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  // --- FUNCIÓN CERRAR SESIÓN (NUEVA) ---
+  openMyAppointments() { this.isMyAppointmentsModalOpen = true; }
+  closeMyAppointments() { this.isMyAppointmentsModalOpen = false; }
+
   async logout() {
     try {
       await signOut(this.auth);
