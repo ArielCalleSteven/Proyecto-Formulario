@@ -122,7 +122,7 @@
         </div>
       </div>
       <div class="grid grid-cols-2 gap-3">
-        <div class="form-control"><label class="label"><span class="label-text font-bold">Fecha</span></label><input type="date" [(ngModel)]="appointment.date" class="input input-bordered w-full" /></div>
+        <div class="form-control"><label class="label"><span class="label-text font-bold">Fecha</span></label><input type="date" [(ngModel)]="appointment.date" [min]="minDate" class="input input-bordered w-full" /></div>
         <div class="form-control"><label class="label"><span class="label-text font-bold">Hora</span></label><input type="time" [(ngModel)]="appointment.time" class="input input-bordered w-full" /></div>
       </div>
       <div class="form-control"><label class="label"><span class="label-text font-bold">Motivo de la Asesoría (Opcional)</span></label><textarea [(ngModel)]="appointment.comment" class="textarea textarea-bordered h-24" placeholder="Hola, necesito ayuda con mi proyecto de Angular..."></textarea></div>
@@ -138,37 +138,61 @@
 <div class="modal modal-bottom sm:modal-middle" [class.modal-open]="isMyAppointmentsModalOpen">
   <div class="modal-box">
     <h3 class="font-bold text-lg mb-4">📬 Mis Solicitudes de Asesoría</h3>
-    
-    <div *ngIf="myAppointments.length === 0" class="text-center opacity-50 py-4">
-      No has solicitado ninguna cita aún.
-    </div>
-
+    <div *ngIf="myAppointments.length === 0" class="text-center opacity-50 py-4">No has solicitado ninguna cita aún.</div>
     <div class="flex flex-col gap-3">
-      <div *ngFor="let app of myAppointments" class="alert shadow-sm border"
-           [ngClass]="{
-             'alert-warning': app.status === 'Pendiente',
-             'alert-success': app.status === 'Aprobada',
-             'alert-error': app.status === 'Rechazada'
-           }">
-        
-        <svg *ngIf="app.status === 'Aprobada'" xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-        <svg *ngIf="app.status === 'Rechazada'" xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-        <svg *ngIf="app.status === 'Pendiente'" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-
+      <div *ngFor="let app of myAppointments" class="alert shadow-sm border" [ngClass]="{'alert-warning': app.status === 'Pendiente', 'alert-success': app.status === 'Aprobada', 'alert-error': app.status === 'Rechazada'}">
         <div class="w-full">
           <h3 class="font-bold text-sm">{{ app.programmerName }}</h3>
           <div class="text-xs">{{ app.date }} - {{ app.time }}</div>
-          
-          <div *ngIf="app.programmerResponse" class="mt-2 bg-base-100/50 p-2 rounded text-xs">
-            <strong>Respuesta:</strong> {{ app.programmerResponse }}
-          </div>
+          <div *ngIf="app.programmerResponse" class="mt-2 bg-base-100/50 p-2 rounded text-xs"><strong>Respuesta:</strong> {{ app.programmerResponse }}</div>
         </div>
       </div>
     </div>
-
-    <div class="modal-action">
-      <button class="btn" (click)="closeMyAppointments()">Cerrar</button>
-    </div>
+    <div class="modal-action"><button class="btn" (click)="closeMyAppointments()">Cerrar</button></div>
   </div>
   <form method="dialog" class="modal-backdrop"><button (click)="closeMyAppointments()">close</button></form>
+</div>
+
+<div class="modal modal-bottom sm:modal-middle" [class.modal-open]="isAlertOpen">
+  <div class="modal-box text-center">
+    
+    <div class="mx-auto mb-4 w-16 h-16 flex items-center justify-center rounded-full bg-opacity-20"
+         [ngClass]="{
+           'bg-success text-success': alertType === 'success',
+           'bg-error text-error': alertType === 'error',
+           'bg-warning text-warning': alertType === 'warning'
+         }">
+         
+       <svg *ngIf="alertType === 'success'" xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+       <svg *ngIf="alertType === 'error'" xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+       <svg *ngIf="alertType === 'warning'" xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+    </div>
+
+    <h3 class="font-bold text-2xl" 
+        [ngClass]="{
+           'text-success': alertType === 'success',
+           'text-error': alertType === 'error',
+           'text-warning': alertType === 'warning'
+        }">
+      {{ alertTitle }}
+    </h3>
+    
+    <p class="py-4 text-lg opacity-80 whitespace-pre-line">{{ alertMessage }}</p>
+
+    <div class="modal-action justify-center">
+      <button class="btn px-8" 
+              [ngClass]="{
+                 'btn-success text-white': alertType === 'success',
+                 'btn-error text-white': alertType === 'error',
+                 'btn-warning text-white': alertType === 'warning'
+              }" 
+              (click)="closeCustomAlert()">
+        Entendido
+      </button>
+    </div>
+
+  </div>
+  <form method="dialog" class="modal-backdrop">
+    <button (click)="closeCustomAlert()">close</button>
+  </form>
 </div>

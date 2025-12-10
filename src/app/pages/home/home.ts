@@ -13,38 +13,42 @@ import { Auth, signOut } from '@angular/fire/auth';
 })
 export class HomeComponent implements OnInit {
   private firestore = inject(Firestore);
-  public auth = inject(Auth); 
+  public auth = inject(Auth);
   private router = inject(Router); 
 
+  // Datos
   allProgrammers: any[] = [];
   filteredProgrammers: any[] = [];
   isLoading: boolean = true;
-
   searchTerm: string = '';
   selectedSpecialty: string = 'All';
   specialties: string[] = ['All', 'Frontend Developer', 'Backend Developer', 'Full-Stack Developer', 'DevOps Engineer'];
 
+  // Modales
   isModalOpen: boolean = false;
   selectedProgrammer: any = null; 
-
   appointment = { date: '', time: '', comment: '' };
-
+  minDate: string = '';
   currentUserEmail: string | null = null;
-
   myAppointments: any[] = [];
   isMyAppointmentsModalOpen: boolean = false;
 
+  // 👇 NUEVAS VARIABLES PARA EL POP-UP PERSONALIZADO 👇
+  isAlertOpen: boolean = false;
+  alertTitle: string = '';
+  alertMessage: string = '';
+  alertType: 'success' | 'error' | 'warning' = 'error'; // Para cambiar el color
+
   ngOnInit() {
+    const today = new Date();
+    this.minDate = today.toISOString().split('T')[0];
+
     this.auth.onAuthStateChanged(user => {
       if (user?.email) {
         this.currentUserEmail = user.email;
-        
         const appRef = collection(this.firestore, 'appointments');
         const q = query(appRef, where('studentEmail', '==', user.email));
-        
-        collectionData(q).subscribe(data => {
-          this.myAppointments = data;
-        });
+        collectionData(q).subscribe(data => this.myAppointments = data);
       }
     });
 
@@ -56,49 +60,70 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  openMyAppointments() { this.isMyAppointmentsModalOpen = true; }
-  closeMyAppointments() { this.isMyAppointmentsModalOpen = false; }
+  // 👇 FUNCIÓN MAGICA PARA ABRIR EL POP-UP 👇
+  showCustomAlert(title: string, message: string, type: 'success' | 'error' | 'warning' = 'error') {
+    this.alertTitle = title;
+    this.alertMessage = message;
+    this.alertType = type;
+    this.isAlertOpen = true;
+  }
 
-  async logout() {
-    try {
-      await signOut(this.auth);
-      this.router.navigate(['/login']);
-    } catch (error) {
-      console.error('Error al salir:', error);
+  closeCustomAlert() {
+    this.isAlertOpen = false;
+  }
+
+  // --- VALIDACIÓN DE HORARIOS ---
+  validateSchedule(dateString: string, timeString: string, availability: any[]): boolean {
+    if (!availability || availability.length === 0) {
+      // Usamos el nuevo Pop-up
+      this.showCustomAlert('⚠️ Sin Horarios', 'Este programador aún no ha configurado sus horarios. No se puede agendar.', 'warning');
+      return false; 
     }
-  }
 
-  applyFilters() {
-    const term = this.searchTerm.toLowerCase().trim();
-    this.filteredProgrammers = this.allProgrammers.filter(p => {
-      const name = (p.name || '').toLowerCase();
-      const specialty = (p.specialty || '').toLowerCase();
-      
-      const matchesSearch = name.includes(term) || specialty.includes(term);
-      const matchesSpecialty = this.selectedSpecialty === 'All' || p.specialty === this.selectedSpecialty;
-      return matchesSearch && matchesSpecialty;
-    });
-  }
+    const parts = dateString.split('-'); 
+    const dateObj = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2])); 
+    const dayNumber = dateObj.getDay(); 
+    const daysMap = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+    const dayName = daysMap[dayNumber];
 
-  openBookingModal(programmer: any) {
-    this.selectedProgrammer = programmer;
-    this.appointment = { date: '', time: '', comment: '' }; 
-    this.isModalOpen = true;
-  }
+    const scheduleForDay = availability.find((s: any) => s.day.toLowerCase() === dayName.toLowerCase());
 
-  closeModal() {
-    this.isModalOpen = false;
-    this.selectedProgrammer = null;
+    if (!scheduleForDay) {
+      // Usamos el nuevo Pop-up
+      this.showCustomAlert('📅 Día Incorrecto', `El programador NO trabaja los días ${dayName}. Revisa la lista de horarios.`, 'error');
+      return false;
+    }
+
+    if (timeString >= scheduleForDay.start && timeString <= scheduleForDay.end) {
+      return true;
+    } else {
+      // Usamos el nuevo Pop-up
+      this.showCustomAlert('⏰ Hora Inválida', `La hora elegida está fuera de rango.\nEl horario para ${dayName} es de ${scheduleForDay.start} a ${scheduleForDay.end}.`, 'error');
+      return false;
+    }
   }
 
   async saveAppointment() {
     if (!this.appointment.date || !this.appointment.time) {
-      alert('⚠️ Por favor selecciona fecha y hora.');
+      this.showCustomAlert('Campos Vacíos', 'Por favor selecciona fecha y hora.', 'warning');
       return;
     }
-    
+
+    if (this.appointment.date < this.minDate) {
+      this.showCustomAlert('Fecha Inválida', 'No puedes agendar en una fecha pasada.', 'error');
+      return;
+    }
+
+    const isValid = this.validateSchedule(
+      this.appointment.date, 
+      this.appointment.time, 
+      this.selectedProgrammer.availability
+    );
+
+    if (!isValid) return;
+
     if (!this.currentUserEmail) {
-      alert('Error: No estás logueado.');
+      this.showCustomAlert('Error de Sesión', 'No estás logueado.', 'error');
       return;
     }
 
@@ -115,12 +140,33 @@ export class HomeComponent implements OnInit {
       };
 
       await addDoc(collection(this.firestore, 'appointments'), newBooking);
-      alert(`✅ ¡Cita agendada con ${this.selectedProgrammer.name}!`);
-      this.closeModal();
+      
+      this.closeModal(); // Cerramos el formulario primero
+      // Mostramos el Pop-up de Éxito
+      this.showCustomAlert('¡Cita Agendada! 🎉', `Tu solicitud para el ${this.appointment.date} ha sido enviada con éxito.`, 'success');
 
     } catch (error) {
       console.error('Error al agendar:', error);
-      alert('Hubo un error al agendar la cita.');
+      this.showCustomAlert('Error', 'Hubo un error al guardar la cita en el sistema.', 'error');
     }
+  }
+
+  // --- OTRAS FUNCIONES (Igual que antes) ---
+  openBookingModal(programmer: any) {
+    this.selectedProgrammer = programmer;
+    this.appointment = { date: '', time: '', comment: '' }; 
+    this.isModalOpen = true;
+  }
+  closeModal() { this.isModalOpen = false; this.selectedProgrammer = null; }
+  openMyAppointments() { this.isMyAppointmentsModalOpen = true; }
+  closeMyAppointments() { this.isMyAppointmentsModalOpen = false; }
+  async logout() { try { await signOut(this.auth); this.router.navigate(['/login']); } catch (error) { console.error('Error al salir:', error); }}
+  applyFilters() {
+    const term = this.searchTerm.toLowerCase().trim();
+    this.filteredProgrammers = this.allProgrammers.filter(p => {
+      const name = (p.name || '').toLowerCase();
+      const specialty = (p.specialty || '').toLowerCase();
+      return (name.includes(term) || specialty.includes(term)) && (this.selectedSpecialty === 'All' || p.specialty === this.selectedSpecialty);
+    });
   }
 }
