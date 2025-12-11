@@ -4,7 +4,6 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink, Router } from '@angular/router'; 
 import { Auth, signOut } from '@angular/fire/auth'; 
 
-// 👇 1. IMPORTAMOS TUS NUEVOS SERVICIOS (Adiós Firestore directo) 👇
 import { UserService } from '../../services/user.service';
 import { AdvisoryService } from '../../services/advisory.service';
 
@@ -15,7 +14,6 @@ import { AdvisoryService } from '../../services/advisory.service';
   templateUrl: './home.html',
 })
 export class HomeComponent implements OnInit {
-  // 👇 2. INYECTAMOS LOS SERVICIOS 👇
   private userService = inject(UserService);
   private advisoryService = inject(AdvisoryService);
   
@@ -32,18 +30,15 @@ export class HomeComponent implements OnInit {
   selectedSpecialty: string = 'All';
   specialties: string[] = ['All', 'Frontend Developer', 'Backend Developer', 'Full-Stack Developer', 'DevOps Engineer'];
 
-  // Modales
   isModalOpen: boolean = false;
   selectedProgrammer: any = null; 
   appointment = { date: '', time: '', comment: '' };
   minDate: string = '';
 
-  // Usuario y Notificaciones
   currentUserEmail: string | null = null;
   myAppointments: any[] = [];
   isMyAppointmentsModalOpen: boolean = false;
 
-  // Variables Pop-up
   isAlertOpen: boolean = false;
   alertTitle: string = '';
   alertMessage: string = '';
@@ -53,20 +48,17 @@ export class HomeComponent implements OnInit {
     const today = new Date();
     this.minDate = today.toISOString().split('T')[0];
 
-    // 1. Escuchar sesión y cargar mis citas (USANDO SERVICIO)
     this.auth.onAuthStateChanged(user => {
       if (user?.email) {
         this.currentUserEmail = user.email;
         
-        // 👇 LLAMADA AL SERVICIO DE CITAS 👇
         this.advisoryService.getStudentAppointments(user.email).subscribe(data => {
           this.myAppointments = data;
         });
       }
     });
 
-    // 2. Cargar programadores (USANDO SERVICIO)
-    // 👇 LLAMADA AL SERVICIO DE USUARIOS 👇
+
     this.userService.getProgrammers().subscribe((data) => {
       this.allProgrammers = data;
       this.applyFilters();
@@ -74,7 +66,6 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  // --- POP-UP PERSONALIZADO ---
   showCustomAlert(title: string, message: string, type: 'success' | 'error' | 'warning' = 'error') {
     this.alertTitle = title;
     this.alertMessage = message;
@@ -83,7 +74,6 @@ export class HomeComponent implements OnInit {
   }
   closeCustomAlert() { this.isAlertOpen = false; }
 
-  // --- VALIDACIÓN DE HORARIOS (Lógica se mantiene en el componente porque es de UI) ---
   validateSchedule(dateString: string, timeString: string, availability: any[]): boolean {
     if (!availability || availability.length === 0) {
       this.showCustomAlert('⚠️ Sin Horarios', 'Este programador aún no ha configurado sus horarios. No se puede agendar.', 'warning');
@@ -111,7 +101,6 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  // --- GUARDAR CITA (Ahora usa AdvisoryService) ---
   async saveAppointment() {
     if (!this.appointment.date || !this.appointment.time) {
       this.showCustomAlert('Campos Vacíos', 'Por favor selecciona fecha y hora.', 'warning');
@@ -148,7 +137,6 @@ export class HomeComponent implements OnInit {
         createdAt: new Date()
       };
 
-      // 👇 AQUÍ USAMOS EL SERVICIO PARA GUARDAR 👇
       await this.advisoryService.createAppointment(newBooking);
       
       this.closeModal(); 
@@ -160,7 +148,6 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  // --- OTRAS FUNCIONES (Iguales) ---
   openBookingModal(programmer: any) {
     this.selectedProgrammer = programmer;
     this.appointment = { date: '', time: '', comment: '' }; 

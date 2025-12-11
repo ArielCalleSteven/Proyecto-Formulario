@@ -17,10 +17,9 @@ import { AdvisoryService } from '../../services/advisory.service';
 })
 export class ProgrammerDashboardComponent implements OnInit {
   private auth = inject(Auth);
-  private firestore = inject(Firestore); // Aún lo necesitamos para buscar el perfil inicial
+  private firestore = inject(Firestore); 
   private router = inject(Router);
   
-  // 👇 INYECTAMOS SERVICIOS 👇
   private projectService = inject(ProjectService);
   private advisoryService = inject(AdvisoryService);
 
@@ -36,7 +35,6 @@ export class ProgrammerDashboardComponent implements OnInit {
   async ngOnInit() {
     const user = this.auth.currentUser;
     if (user?.email) {
-      // Buscar Perfil (Esto podríamos moverlo a userService.getProfileByEmail, pero dejémoslo aquí por ahora)
       const ref = collection(this.firestore, 'programmers');
       const q = query(ref, where('contact.email', '==', user.email));
       const snapshot = await getDocs(q);
@@ -46,7 +44,6 @@ export class ProgrammerDashboardComponent implements OnInit {
         this.myProfile = { id: d.id, ...d.data() };
         if (!this.myProfile.projects) this.myProfile.projects = [];
 
-        // 👇 CARGAR CITAS USANDO SERVICIO 👇
         this.loadAppointments(this.myProfile.id);
       }
     }
@@ -54,7 +51,6 @@ export class ProgrammerDashboardComponent implements OnInit {
   }
 
   loadAppointments(programmerId: string) {
-    // Usamos el servicio
     this.advisoryService.getProgrammerAppointments(programmerId).subscribe(data => {
       this.appointments = data.map(app => ({ ...app, replyMessage: '' }));
     });
@@ -63,13 +59,11 @@ export class ProgrammerDashboardComponent implements OnInit {
   async respondAppointment(app: any, status: 'Aprobada' | 'Rechazada') {
     if (!app.replyMessage) { alert('⚠️ Escribe un mensaje.'); return; }
     try {
-      // Usamos el servicio
       await this.advisoryService.updateAppointmentStatus(app.id, status, app.replyMessage);
       alert(`✅ Solicitud ${status}`);
     } catch (error) { console.error(error); }
   }
 
-  // ... (Modales y resetForm igual que antes) ...
   openModal() { this.isEditingProject = false; this.resetForm(); this.isModalOpen = true; }
   openEditModal(project: any, index: number) {
     this.isEditingProject = true; this.currentProjectIndex = index;
@@ -83,7 +77,7 @@ export class ProgrammerDashboardComponent implements OnInit {
     if (!this.newProject.title) { alert('Datos requeridos'); return; }
     try {
       const techArray = this.newProject.techInput.split(',').map((t: string) => t.trim()).filter((t: string) => t !== '');
-      const projectData = { ...this.newProject, tech: techArray }; // Simplificado
+      const projectData = { ...this.newProject, tech: techArray }; 
 
       if (this.isEditingProject && this.currentProjectIndex !== null) {
         this.myProfile.projects[this.currentProjectIndex] = projectData;
@@ -91,7 +85,6 @@ export class ProgrammerDashboardComponent implements OnInit {
         this.myProfile.projects.push(projectData);
       }
 
-      // 👇 GUARDAR USANDO PROJECT SERVICE 👇
       await this.projectService.updateUserProjects(this.myProfile.id, this.myProfile.projects);
       
       this.closeModal();
@@ -102,12 +95,10 @@ export class ProgrammerDashboardComponent implements OnInit {
     if (!confirm('¿Eliminar?')) return;
     try {
       this.myProfile.projects.splice(index, 1);
-      // 👇 BORRAR USANDO PROJECT SERVICE 👇
       await this.projectService.updateUserProjects(this.myProfile.id, this.myProfile.projects);
     } catch (error) { console.error(error); }
   }
 
-  // ... (Logout y Notificaciones externas igual) ...
   notifyStudent(app: any, method: 'whatsapp' | 'email') { /* ... tu código de antes ... */ }
   async logout() { await signOut(this.auth); this.router.navigate(['/login']); }
 }
