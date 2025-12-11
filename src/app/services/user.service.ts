@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { Firestore, collection, collectionData, addDoc, doc, updateDoc, deleteDoc, query, where, getDocs } from '@angular/fire/firestore';
+import { Firestore, collection, collectionData, addDoc, doc, updateDoc, deleteDoc, query, where, getDocs, setDoc } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 
 export interface Programmer {
@@ -40,10 +40,20 @@ export class UserService {
     return deleteDoc(docRef);
   }
 
-
   getProgrammerByEmail(email: string) {
     const ref = collection(this.firestore, this.collectionName);
     const q = query(ref, where('contact.email', '==', email));
     return getDocs(q);
+  }
+
+  saveStudent(user: any) {
+    const docRef = doc(this.firestore, 'students', user.uid);
+    
+    return setDoc(docRef, {
+      uid: user.uid,
+      email: user.email,
+      role: 'student', 
+      createdAt: new Date()
+    }, { merge: true }); 
   }
 }

@@ -23,6 +23,12 @@ export class LoginComponent {
   isRegistering: boolean = false; 
   isLoading: boolean = false;
 
+  isAlertOpen: boolean = false;
+  alertTitle: string = '';
+  alertMessage: string = '';
+  alertType: 'success' | 'error' | 'warning' = 'error';
+  onAlertCloseCallback: () => void = () => {}; 
+
   constructor() {
     authState(this.auth).pipe(take(1)).subscribe(user => {
       if (user && user.email) {
@@ -31,9 +37,22 @@ export class LoginComponent {
     });
   }
 
+  showCustomAlert(title: string, message: string, type: 'success' | 'error' | 'warning', onClose?: () => void) {
+    this.alertTitle = title;
+    this.alertMessage = message;
+    this.alertType = type;
+    this.onAlertCloseCallback = onClose || (() => {}); 
+    this.isAlertOpen = true;
+  }
+
+  closeCustomAlert() {
+    this.isAlertOpen = false;
+    this.onAlertCloseCallback(); 
+  }
+
   async onSubmit() {
     if (!this.email || !this.password) {
-      alert('Por favor ingresa correo y contraseña');
+      this.showCustomAlert('Campos Incompletos', 'Por favor ingresa correo y contraseña', 'warning');
       return;
     }
 
@@ -41,9 +60,26 @@ export class LoginComponent {
 
     try {
       if (this.isRegistering) {
-        await createUserWithEmailAndPassword(this.auth, this.email, this.password);
-        alert('¡Cuenta creada! Bienvenido.');
-        this.router.navigate(['/home']);
+        const credential = await createUserWithEmailAndPassword(this.auth, this.email, this.password);
+        
+        if (credential.user && credential.user.email) {
+          
+          const programmerSnapshot = await this.userService.getProgrammerByEmail(credential.user.email);
+          
+          if (programmerSnapshot.empty) {
+            await this.userService.saveStudent(credential.user);
+          } else {
+            console.log('Programador detectado durante el registro.');
+          }
+
+          this.showCustomAlert(
+            '¡Bienvenido!', 
+            'Tu cuenta ha sido configurada exitosamente.', 
+            'success', 
+            () => this.checkUserRole(credential.user.email!) 
+          );
+        }
+
       } else {
         const credential = await signInWithEmailAndPassword(this.auth, this.email, this.password);
         if (credential.user.email) {
@@ -51,12 +87,37 @@ export class LoginComponent {
         }
       }
     } catch (error: any) {
-      console.error('Error en autenticación:', error);
-      let msg = 'Error en la autenticación';
-      if (error.code === 'auth/wrong-password') msg = 'Contraseña incorrecta';
-      if (error.code === 'auth/user-not-found') msg = 'Usuario no encontrado';
-      if (error.code === 'auth/email-already-in-use') msg = 'Este correo ya está registrado';
-      alert(msg);
+      console.error('Error COMPLETO:', error); 
+      
+      let msg = 'Ocurrió un error inesperado.';
+      
+      switch (error.code) {
+        case 'auth/wrong-password':
+        case 'auth/user-not-found':
+        case 'auth/invalid-credential': 
+          msg = 'Correo o contraseña incorrectos.';
+          break;
+        case 'auth/email-already-in-use':
+          msg = 'Este correo ya está registrado. Por favor inicia sesión.';
+          break;
+        case 'auth/invalid-email':
+          msg = 'El formato del correo no es válido.';
+          break;
+        case 'auth/weak-password':
+          msg = 'La contraseña debe tener al menos 6 caracteres.';
+          break;
+        case 'auth/too-many-requests': 
+          msg = 'Demasiados intentos fallidos. Tu cuenta ha sido bloqueada temporalmente. Intenta más tarde.';
+          break;
+        case 'auth/user-disabled':
+          msg = 'Esta cuenta ha sido inhabilitada.';
+          break;
+        default:
+          msg = `Error desconocido: ${error.code}`;
+          break;
+      }
+
+      this.showCustomAlert('Error de Acceso', msg, 'error');
     } finally {
       this.isLoading = false;
     }
@@ -73,7 +134,7 @@ export class LoginComponent {
       }
     } catch (error) {
       console.error('Error con Google:', error);
-      alert('No se pudo iniciar sesión con Google');
+      this.showCustomAlert('Error', 'No se pudo iniciar sesión con Google', 'error');
       this.isLoading = false;
     }
   }

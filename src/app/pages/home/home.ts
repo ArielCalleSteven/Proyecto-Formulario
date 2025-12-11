@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink, Router } from '@angular/router'; 
 import { Auth, signOut } from '@angular/fire/auth'; 
 
+// Servicios
 import { UserService } from '../../services/user.service';
 import { AdvisoryService } from '../../services/advisory.service';
 
@@ -16,7 +17,6 @@ import { AdvisoryService } from '../../services/advisory.service';
 export class HomeComponent implements OnInit {
   private userService = inject(UserService);
   private advisoryService = inject(AdvisoryService);
-  
   public auth = inject(Auth);
   private router = inject(Router); 
 
@@ -24,8 +24,6 @@ export class HomeComponent implements OnInit {
   allProgrammers: any[] = [];
   filteredProgrammers: any[] = [];
   isLoading: boolean = true;
-
-  // Filtros
   searchTerm: string = '';
   selectedSpecialty: string = 'All';
   specialties: string[] = ['All', 'Frontend Developer', 'Backend Developer', 'Full-Stack Developer', 'DevOps Engineer'];
@@ -43,6 +41,7 @@ export class HomeComponent implements OnInit {
   alertTitle: string = '';
   alertMessage: string = '';
   alertType: 'success' | 'error' | 'warning' = 'error';
+  onAlertCloseCallback: () => void = () => {};
 
   ngOnInit() {
     const today = new Date();
@@ -51,13 +50,11 @@ export class HomeComponent implements OnInit {
     this.auth.onAuthStateChanged(user => {
       if (user?.email) {
         this.currentUserEmail = user.email;
-        
         this.advisoryService.getStudentAppointments(user.email).subscribe(data => {
           this.myAppointments = data;
         });
       }
     });
-
 
     this.userService.getProgrammers().subscribe((data) => {
       this.allProgrammers = data;
@@ -66,17 +63,22 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  showCustomAlert(title: string, message: string, type: 'success' | 'error' | 'warning' = 'error') {
+  showCustomAlert(title: string, message: string, type: 'success' | 'error' | 'warning' = 'error', onClose?: () => void) {
     this.alertTitle = title;
     this.alertMessage = message;
     this.alertType = type;
+    this.onAlertCloseCallback = onClose || (() => {});
     this.isAlertOpen = true;
   }
-  closeCustomAlert() { this.isAlertOpen = false; }
+  
+  closeCustomAlert() { 
+    this.isAlertOpen = false; 
+    if (this.onAlertCloseCallback) this.onAlertCloseCallback();
+  }
 
   validateSchedule(dateString: string, timeString: string, availability: any[]): boolean {
     if (!availability || availability.length === 0) {
-      this.showCustomAlert('⚠️ Sin Horarios', 'Este programador aún no ha configurado sus horarios. No se puede agendar.', 'warning');
+      this.showCustomAlert('⚠️ Sin Horarios', 'Este programador aún no ha configurado sus horarios.', 'warning');
       return false; 
     }
 
@@ -89,15 +91,35 @@ export class HomeComponent implements OnInit {
     const scheduleForDay = availability.find((s: any) => s.day.toLowerCase() === dayName.toLowerCase());
 
     if (!scheduleForDay) {
-      this.showCustomAlert('📅 Día Incorrecto', `El programador NO trabaja los días ${dayName}. Revisa la lista de horarios.`, 'error');
+      this.showCustomAlert('📅 Día Incorrecto', `El programador NO trabaja los días ${dayName}.`, 'error');
       return false;
     }
 
     if (timeString >= scheduleForDay.start && timeString <= scheduleForDay.end) {
       return true;
     } else {
-      this.showCustomAlert('⏰ Hora Inválida', `La hora elegida está fuera de rango.\nEl horario para ${dayName} es de ${scheduleForDay.start} a ${scheduleForDay.end}.`, 'error');
+      this.showCustomAlert('⏰ Hora Inválida', `El horario para ${dayName} es de ${scheduleForDay.start} a ${scheduleForDay.end}.`, 'error');
       return false;
+    }
+  }
+
+  notifyProgrammer(app: any, method: 'whatsapp' | 'email') {
+    const emailDestino = app.programmerEmail; 
+    
+    if (method === 'email' && !emailDestino) {
+      this.showCustomAlert('Error', 'No se encontró el correo del programador para esta cita.', 'warning');
+      return;
+    }
+
+    const subject = `Consulta sobre Asesoría - Plataforma Estudiantil`;
+    const body = `Hola ${app.programmerName}, soy el estudiante ${this.currentUserEmail}. \n\nTe escribo respecto a la cita del ${app.date} a las ${app.time}. \nEstado actual: ${app.status}. \n\nQuedo atento.`;
+
+    if (method === 'whatsapp') {
+      const url = `https://wa.me/?text=${encodeURIComponent(body)}`;
+      window.open(url, '_blank');
+    } else if (method === 'email') {
+      const url = `mailto:${emailDestino}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      window.open(url, '_blank');
     }
   }
 
@@ -106,18 +128,12 @@ export class HomeComponent implements OnInit {
       this.showCustomAlert('Campos Vacíos', 'Por favor selecciona fecha y hora.', 'warning');
       return;
     }
-
     if (this.appointment.date < this.minDate) {
       this.showCustomAlert('Fecha Inválida', 'No puedes agendar en una fecha pasada.', 'error');
       return;
     }
 
-    const isValid = this.validateSchedule(
-      this.appointment.date, 
-      this.appointment.time, 
-      this.selectedProgrammer.availability
-    );
-
+    const isValid = this.validateSchedule(this.appointment.date, this.appointment.time, this.selectedProgrammer.availability);
     if (!isValid) return;
 
     if (!this.currentUserEmail) {
@@ -129,7 +145,8 @@ export class HomeComponent implements OnInit {
       const newBooking = {
         studentEmail: this.currentUserEmail,
         programmerId: this.selectedProgrammer.id,
-        programmerName: this.selectedProgrammer.name, 
+        programmerName: this.selectedProgrammer.name,
+        programmerEmail: this.selectedProgrammer.contact?.email || '', 
         date: this.appointment.date,
         time: this.appointment.time,
         comment: this.appointment.comment,
@@ -140,31 +157,28 @@ export class HomeComponent implements OnInit {
       await this.advisoryService.createAppointment(newBooking);
       
       this.closeModal(); 
-      this.showCustomAlert('¡Cita Agendada! 🎉', `Tu solicitud para el ${this.appointment.date} ha sido enviada con éxito.`, 'success');
+      
+      this.showCustomAlert(
+        '¡Solicitud Enviada!', 
+        'La cita se guardó en el sistema.\n\nSi deseas notificar formalmente por correo ahora, da clic en Continuar.', 
+        'success',
+        () => {
+           this.notifyProgrammer(newBooking, 'email');
+        }
+      );
 
     } catch (error) {
       console.error('Error al agendar:', error);
-      this.showCustomAlert('Error', 'Hubo un error al guardar la cita en el sistema.', 'error');
+      this.showCustomAlert('Error', 'Hubo un error al guardar la cita.', 'error');
     }
   }
 
-  openBookingModal(programmer: any) {
-    this.selectedProgrammer = programmer;
-    this.appointment = { date: '', time: '', comment: '' }; 
-    this.isModalOpen = true;
-  }
+  openBookingModal(programmer: any) { this.selectedProgrammer = programmer; this.appointment = { date: '', time: '', comment: '' }; this.isModalOpen = true; }
   closeModal() { this.isModalOpen = false; this.selectedProgrammer = null; }
-  
   openMyAppointments() { this.isMyAppointmentsModalOpen = true; }
   closeMyAppointments() { this.isMyAppointmentsModalOpen = false; }
+  async logout() { try { await signOut(this.auth); this.router.navigate(['/login']); } catch (error) { console.error('Error al salir:', error); }}
   
-  async logout() { 
-    try { 
-      await signOut(this.auth); 
-      this.router.navigate(['/login']); 
-    } catch (error) { console.error('Error al salir:', error); }
-  }
-
   applyFilters() {
     const term = this.searchTerm.toLowerCase().trim();
     this.filteredProgrammers = this.allProgrammers.filter(p => {
