@@ -2,8 +2,11 @@ import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms'; 
 import { RouterLink, Router } from '@angular/router'; 
-import { Firestore, collection, collectionData, addDoc, query, where } from '@angular/fire/firestore';
 import { Auth, signOut } from '@angular/fire/auth'; 
+
+// 👇 1. IMPORTAMOS TUS NUEVOS SERVICIOS (Adiós Firestore directo) 👇
+import { UserService } from '../../services/user.service';
+import { AdvisoryService } from '../../services/advisory.service';
 
 @Component({
   selector: 'app-home',
@@ -12,7 +15,10 @@ import { Auth, signOut } from '@angular/fire/auth';
   templateUrl: './home.html',
 })
 export class HomeComponent implements OnInit {
-  private firestore = inject(Firestore);
+  // 👇 2. INYECTAMOS LOS SERVICIOS 👇
+  private userService = inject(UserService);
+  private advisoryService = inject(AdvisoryService);
+  
   public auth = inject(Auth);
   private router = inject(Router); 
 
@@ -20,6 +26,8 @@ export class HomeComponent implements OnInit {
   allProgrammers: any[] = [];
   filteredProgrammers: any[] = [];
   isLoading: boolean = true;
+
+  // Filtros
   searchTerm: string = '';
   selectedSpecialty: string = 'All';
   specialties: string[] = ['All', 'Frontend Developer', 'Backend Developer', 'Full-Stack Developer', 'DevOps Engineer'];
@@ -29,53 +37,55 @@ export class HomeComponent implements OnInit {
   selectedProgrammer: any = null; 
   appointment = { date: '', time: '', comment: '' };
   minDate: string = '';
+
+  // Usuario y Notificaciones
   currentUserEmail: string | null = null;
   myAppointments: any[] = [];
   isMyAppointmentsModalOpen: boolean = false;
 
-  // 👇 NUEVAS VARIABLES PARA EL POP-UP PERSONALIZADO 👇
+  // Variables Pop-up
   isAlertOpen: boolean = false;
   alertTitle: string = '';
   alertMessage: string = '';
-  alertType: 'success' | 'error' | 'warning' = 'error'; // Para cambiar el color
+  alertType: 'success' | 'error' | 'warning' = 'error';
 
   ngOnInit() {
     const today = new Date();
     this.minDate = today.toISOString().split('T')[0];
 
+    // 1. Escuchar sesión y cargar mis citas (USANDO SERVICIO)
     this.auth.onAuthStateChanged(user => {
       if (user?.email) {
         this.currentUserEmail = user.email;
-        const appRef = collection(this.firestore, 'appointments');
-        const q = query(appRef, where('studentEmail', '==', user.email));
-        collectionData(q).subscribe(data => this.myAppointments = data);
+        
+        // 👇 LLAMADA AL SERVICIO DE CITAS 👇
+        this.advisoryService.getStudentAppointments(user.email).subscribe(data => {
+          this.myAppointments = data;
+        });
       }
     });
 
-    const ref = collection(this.firestore, 'programmers');
-    collectionData(ref, { idField: 'id' }).subscribe((data) => {
+    // 2. Cargar programadores (USANDO SERVICIO)
+    // 👇 LLAMADA AL SERVICIO DE USUARIOS 👇
+    this.userService.getProgrammers().subscribe((data) => {
       this.allProgrammers = data;
       this.applyFilters();
       this.isLoading = false;
     });
   }
 
-  // 👇 FUNCIÓN MAGICA PARA ABRIR EL POP-UP 👇
+  // --- POP-UP PERSONALIZADO ---
   showCustomAlert(title: string, message: string, type: 'success' | 'error' | 'warning' = 'error') {
     this.alertTitle = title;
     this.alertMessage = message;
     this.alertType = type;
     this.isAlertOpen = true;
   }
+  closeCustomAlert() { this.isAlertOpen = false; }
 
-  closeCustomAlert() {
-    this.isAlertOpen = false;
-  }
-
-  // --- VALIDACIÓN DE HORARIOS ---
+  // --- VALIDACIÓN DE HORARIOS (Lógica se mantiene en el componente porque es de UI) ---
   validateSchedule(dateString: string, timeString: string, availability: any[]): boolean {
     if (!availability || availability.length === 0) {
-      // Usamos el nuevo Pop-up
       this.showCustomAlert('⚠️ Sin Horarios', 'Este programador aún no ha configurado sus horarios. No se puede agendar.', 'warning');
       return false; 
     }
@@ -89,7 +99,6 @@ export class HomeComponent implements OnInit {
     const scheduleForDay = availability.find((s: any) => s.day.toLowerCase() === dayName.toLowerCase());
 
     if (!scheduleForDay) {
-      // Usamos el nuevo Pop-up
       this.showCustomAlert('📅 Día Incorrecto', `El programador NO trabaja los días ${dayName}. Revisa la lista de horarios.`, 'error');
       return false;
     }
@@ -97,12 +106,12 @@ export class HomeComponent implements OnInit {
     if (timeString >= scheduleForDay.start && timeString <= scheduleForDay.end) {
       return true;
     } else {
-      // Usamos el nuevo Pop-up
       this.showCustomAlert('⏰ Hora Inválida', `La hora elegida está fuera de rango.\nEl horario para ${dayName} es de ${scheduleForDay.start} a ${scheduleForDay.end}.`, 'error');
       return false;
     }
   }
 
+  // --- GUARDAR CITA (Ahora usa AdvisoryService) ---
   async saveAppointment() {
     if (!this.appointment.date || !this.appointment.time) {
       this.showCustomAlert('Campos Vacíos', 'Por favor selecciona fecha y hora.', 'warning');
@@ -139,10 +148,10 @@ export class HomeComponent implements OnInit {
         createdAt: new Date()
       };
 
-      await addDoc(collection(this.firestore, 'appointments'), newBooking);
+      // 👇 AQUÍ USAMOS EL SERVICIO PARA GUARDAR 👇
+      await this.advisoryService.createAppointment(newBooking);
       
-      this.closeModal(); // Cerramos el formulario primero
-      // Mostramos el Pop-up de Éxito
+      this.closeModal(); 
       this.showCustomAlert('¡Cita Agendada! 🎉', `Tu solicitud para el ${this.appointment.date} ha sido enviada con éxito.`, 'success');
 
     } catch (error) {
@@ -151,16 +160,24 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  // --- OTRAS FUNCIONES (Igual que antes) ---
+  // --- OTRAS FUNCIONES (Iguales) ---
   openBookingModal(programmer: any) {
     this.selectedProgrammer = programmer;
     this.appointment = { date: '', time: '', comment: '' }; 
     this.isModalOpen = true;
   }
   closeModal() { this.isModalOpen = false; this.selectedProgrammer = null; }
+  
   openMyAppointments() { this.isMyAppointmentsModalOpen = true; }
   closeMyAppointments() { this.isMyAppointmentsModalOpen = false; }
-  async logout() { try { await signOut(this.auth); this.router.navigate(['/login']); } catch (error) { console.error('Error al salir:', error); }}
+  
+  async logout() { 
+    try { 
+      await signOut(this.auth); 
+      this.router.navigate(['/login']); 
+    } catch (error) { console.error('Error al salir:', error); }
+  }
+
   applyFilters() {
     const term = this.searchTerm.toLowerCase().trim();
     this.filteredProgrammers = this.allProgrammers.filter(p => {

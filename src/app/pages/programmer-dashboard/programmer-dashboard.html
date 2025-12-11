@@ -80,25 +80,19 @@
 
                 <div class="w-full sm:w-1/2 bg-base-100 p-3 rounded-lg" *ngIf="app.status === 'Pendiente'">
                   <label class="label pt-0"><span class="label-text font-bold text-xs">Responder Solicitud:</span></label>
-                  
-                  <textarea [(ngModel)]="app.replyMessage" class="textarea textarea-bordered w-full h-20 text-sm mb-2" placeholder="Ej: Confirmado, te envío el link de Meet... o No puedo a esa hora."></textarea>
-                  
+                  <textarea [(ngModel)]="app.replyMessage" class="textarea textarea-bordered w-full h-20 text-sm mb-2" placeholder="Ej: Confirmado, te envío el link de Meet..."></textarea>
                   <div class="flex gap-2">
-                    <button class="btn btn-success btn-sm flex-1 text-white" (click)="respondAppointment(app, 'Aprobada')">
-                      Aprobar ✅
-                    </button>
-                    <button class="btn btn-error btn-sm flex-1 text-white" (click)="respondAppointment(app, 'Rechazada')">
-                      Rechazar ❌
-                    </button>
+                    <button class="btn btn-success btn-sm flex-1 text-white" (click)="respondAppointment(app, 'Aprobada')">Aprobar ✅</button>
+                    <button class="btn btn-error btn-sm flex-1 text-white" (click)="respondAppointment(app, 'Rechazada')">Rechazar ❌</button>
                   </div>
                 </div>
 
               </div>
             </div>
           </div>
-
         </div>
       </div>
+
       <div class="card bg-base-100 shadow-xl">
         <div class="card-body">
           <div class="flex justify-between items-center mb-4">
@@ -113,14 +107,25 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div *ngFor="let p of myProfile.projects; let i = index" class="card bg-base-200 shadow-sm border border-base-300">
               <div class="card-body p-4">
+                
                 <div class="flex justify-between items-start">
                   <div>
                     <h4 class="font-bold">{{ p.title }}</h4>
                     <div class="badge badge-outline text-xs">{{ p.category }}</div>
                   </div>
-                  <button class="btn btn-ghost btn-sm text-error tooltip tooltip-left" data-tip="Eliminar" (click)="deleteProject(i)">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                  </button>
+                  
+                  <div class="flex gap-2">
+                    <button class="btn btn-ghost btn-sm text-info tooltip tooltip-left" data-tip="Editar" (click)="openEditModal(p, i)">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                      </svg>
+                    </button>
+
+                    <button class="btn btn-ghost btn-sm text-error tooltip tooltip-left" data-tip="Eliminar" (click)="deleteProject(i)">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                    </button>
+                  </div>
+
                 </div>
                 <p class="text-xs opacity-70 truncate mt-2">{{ p.description }}</p>
                 <div class="mt-2 text-xs font-mono text-primary">{{ p.role }}</div>
@@ -136,7 +141,11 @@
 
 <div class="modal modal-bottom sm:modal-middle" [class.modal-open]="isModalOpen">
   <div class="modal-box w-11/12 max-w-2xl bg-base-100 border border-base-300">
-    <h3 class="font-bold text-xl text-primary mb-4">🚀 Agregar Nuevo Proyecto</h3>
+    
+    <h3 class="font-bold text-xl text-primary mb-4">
+      {{ isEditingProject ? '✏️ Editar Proyecto' : '🚀 Agregar Nuevo Proyecto' }}
+    </h3>
+    
     <div class="form-control gap-3">
       <div class="flex flex-col sm:flex-row gap-3">
         <div class="w-full"><label class="label"><span class="label-text">Nombre del Proyecto *</span></label><input type="text" [(ngModel)]="newProject.title" class="input input-bordered w-full" /></div>
@@ -153,7 +162,14 @@
         <div><label class="label"><span class="label-text text-xs">Demo</span></label><input type="text" [(ngModel)]="newProject.demo" class="input input-bordered input-sm w-full" /></div>
       </div>
     </div>
-    <div class="modal-action mt-6"><button class="btn btn-ghost" (click)="closeModal()">Cancelar</button><button class="btn btn-primary" (click)="saveProject()">Guardar Proyecto</button></div>
+    
+    <div class="modal-action mt-6">
+      <button class="btn btn-ghost" (click)="closeModal()">Cancelar</button>
+      
+      <button class="btn btn-primary" (click)="saveProject()">
+        {{ isEditingProject ? 'Actualizar Cambios' : 'Guardar Proyecto' }}
+      </button>
+    </div>
   </div>
   <form method="dialog" class="modal-backdrop"><button (click)="closeModal()">close</button></form>
 </div>

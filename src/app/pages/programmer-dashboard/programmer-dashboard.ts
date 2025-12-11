@@ -3,37 +3,40 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms'; 
 import { Auth, signOut } from '@angular/fire/auth';
-import { Firestore, collection, query, where, getDocs, doc, updateDoc, collectionData } from '@angular/fire/firestore';
-import { Observable } from 'rxjs';
+import { Firestore, collection, query, where, getDocs } from '@angular/fire/firestore';
+
+// 👇 IMPORTAMOS LOS SERVICIOS 👇
+import { ProjectService } from '../../services/project.service';
+import { AdvisoryService } from '../../services/advisory.service';
 
 @Component({
   selector: 'app-programmer-dashboard',
   standalone: true,
   imports: [CommonModule, RouterLink, FormsModule], 
-  templateUrl: './programmer-dashboard.html',
+  templateUrl: './programmer-dashboard.html', 
 })
 export class ProgrammerDashboardComponent implements OnInit {
   private auth = inject(Auth);
-  private firestore = inject(Firestore);
+  private firestore = inject(Firestore); // Aún lo necesitamos para buscar el perfil inicial
   private router = inject(Router);
+  
+  // 👇 INYECTAMOS SERVICIOS 👇
+  private projectService = inject(ProjectService);
+  private advisoryService = inject(AdvisoryService);
 
   myProfile: any = null;
   isLoading: boolean = true;
   isModalOpen: boolean = false;
-
-  // 👇 LISTA DE SOLICITUDES DE ASESORÍA 👇
+  isEditingProject: boolean = false;
+  currentProjectIndex: number | null = null;
   appointments: any[] = [];
 
-  // Objeto para proyecto nuevo (ya lo tenías)
-  newProject = {
-    title: '', description: '', category: 'Académico', role: 'Frontend',
-    techInput: '', repo: '', demo: ''
-  };
+  newProject = { title: '', description: '', category: 'Académico', role: 'Frontend', techInput: '', repo: '', demo: '' };
 
   async ngOnInit() {
     const user = this.auth.currentUser;
     if (user?.email) {
-      // 1. Cargar Perfil del Programador
+      // Buscar Perfil (Esto podríamos moverlo a userService.getProfileByEmail, pero dejémoslo aquí por ahora)
       const ref = collection(this.firestore, 'programmers');
       const q = query(ref, where('contact.email', '==', user.email));
       const snapshot = await getDocs(q);
@@ -41,10 +44,9 @@ export class ProgrammerDashboardComponent implements OnInit {
       if (!snapshot.empty) {
         const d = snapshot.docs[0];
         this.myProfile = { id: d.id, ...d.data() };
-        
         if (!this.myProfile.projects) this.myProfile.projects = [];
 
-        // 2. 👇 CARGAR SOLICITUDES DE ASESORÍA (Donde programmerId == mi ID) 👇
+        // 👇 CARGAR CITAS USANDO SERVICIO 👇
         this.loadAppointments(this.myProfile.id);
       }
     }
@@ -52,78 +54,60 @@ export class ProgrammerDashboardComponent implements OnInit {
   }
 
   loadAppointments(programmerId: string) {
-    const appRef = collection(this.firestore, 'appointments');
-    const q = query(appRef, where('programmerId', '==', programmerId));
-    
-    // Usamos collectionData para ver cambios en tiempo real
-    collectionData(q, { idField: 'id' }).subscribe((data) => {
-      this.appointments = data.map(app => ({
-        ...app,
-        replyMessage: '' // Campo temporal para escribir la respuesta
-      }));
+    // Usamos el servicio
+    this.advisoryService.getProgrammerAppointments(programmerId).subscribe(data => {
+      this.appointments = data.map(app => ({ ...app, replyMessage: '' }));
     });
   }
 
-  // --- RESPONDER SOLICITUD (Aprobar/Rechazar) ---
   async respondAppointment(app: any, status: 'Aprobada' | 'Rechazada') {
-    if (!app.replyMessage) {
-      alert('⚠️ Por favor escribe un mensaje de confirmación o justificación.');
-      return;
-    }
-
+    if (!app.replyMessage) { alert('⚠️ Escribe un mensaje.'); return; }
     try {
-      const docRef = doc(this.firestore, 'appointments', app.id);
-      await updateDoc(docRef, {
-        status: status,
-        programmerResponse: app.replyMessage 
-      });
+      // Usamos el servicio
+      await this.advisoryService.updateAppointmentStatus(app.id, status, app.replyMessage);
       alert(`✅ Solicitud ${status}`);
-    } catch (error) {
-      console.error('Error actualizando cita:', error);
-    }
-  }
-
-  
-  openModal() { this.isModalOpen = true; }
-  closeModal() { this.isModalOpen = false; this.resetForm(); }
-
-  resetForm() {
-    this.newProject = {
-      title: '', description: '', category: 'Académico', role: 'Frontend',
-      techInput: '', repo: '', demo: ''
-    };
-  }
-
-  async saveProject() {
-    if (!this.newProject.title || !this.newProject.description) {
-      alert('⚠️ Título y descripción requeridos.');
-      return;
-    }
-    try {
-      const techArray = this.newProject.techInput.split(',').map(t => t.trim()).filter(t => t !== '');
-      const projectData = {
-        title: this.newProject.title, description: this.newProject.description,
-        category: this.newProject.category, role: this.newProject.role,
-        tech: techArray, repo: this.newProject.repo, demo: this.newProject.demo
-      };
-      this.myProfile.projects.push(projectData);
-      const docRef = doc(this.firestore, 'programmers', this.myProfile.id);
-      await updateDoc(docRef, { projects: this.myProfile.projects });
-      this.closeModal();
-    } catch (error) { console.error(error); alert('Error al guardar'); }
-  }
-
-  async deleteProject(index: number) {
-    if (!confirm('¿Eliminar este proyecto?')) return;
-    try {
-      this.myProfile.projects.splice(index, 1);
-      const docRef = doc(this.firestore, 'programmers', this.myProfile.id);
-      await updateDoc(docRef, { projects: this.myProfile.projects });
     } catch (error) { console.error(error); }
   }
 
-  async logout() {
-    await signOut(this.auth);
-    this.router.navigate(['/login']);
+  // ... (Modales y resetForm igual que antes) ...
+  openModal() { this.isEditingProject = false; this.resetForm(); this.isModalOpen = true; }
+  openEditModal(project: any, index: number) {
+    this.isEditingProject = true; this.currentProjectIndex = index;
+    this.newProject = { ...project, techInput: project.tech ? project.tech.join(', ') : '' };
+    this.isModalOpen = true;
   }
+  closeModal() { this.isModalOpen = false; this.resetForm(); }
+  resetForm() { this.isEditingProject = false; this.currentProjectIndex = null; this.newProject = { title: '', description: '', category: 'Académico', role: 'Frontend', techInput: '', repo: '', demo: '' }; }
+
+  async saveProject() {
+    if (!this.newProject.title) { alert('Datos requeridos'); return; }
+    try {
+      const techArray = this.newProject.techInput.split(',').map((t: string) => t.trim()).filter((t: string) => t !== '');
+      const projectData = { ...this.newProject, tech: techArray }; // Simplificado
+
+      if (this.isEditingProject && this.currentProjectIndex !== null) {
+        this.myProfile.projects[this.currentProjectIndex] = projectData;
+      } else {
+        this.myProfile.projects.push(projectData);
+      }
+
+      // 👇 GUARDAR USANDO PROJECT SERVICE 👇
+      await this.projectService.updateUserProjects(this.myProfile.id, this.myProfile.projects);
+      
+      this.closeModal();
+    } catch (error) { console.error(error); alert('Error'); }
+  }
+
+  async deleteProject(index: number) {
+    if (!confirm('¿Eliminar?')) return;
+    try {
+      this.myProfile.projects.splice(index, 1);
+      // 👇 BORRAR USANDO PROJECT SERVICE 👇
+      await this.projectService.updateUserProjects(this.myProfile.id, this.myProfile.projects);
+    } catch (error) { console.error(error); }
+  }
+
+  // ... (Logout y Notificaciones externas igual) ...
+  notifyStudent(app: any, method: 'whatsapp' | 'email') { /* ... tu código de antes ... */ }
+  async logout() { await signOut(this.auth); this.router.navigate(['/login']); }
 }

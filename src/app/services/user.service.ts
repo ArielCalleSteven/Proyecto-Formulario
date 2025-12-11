@@ -1,21 +1,42 @@
 import { Injectable, inject } from '@angular/core';
-import { Firestore, collection, addDoc, getDocs } from '@angular/fire/firestore';
-import { Programmer } from '../models/programmer.interface';
-import { from } from 'rxjs';
+import { Firestore, collection, collectionData, addDoc, doc, updateDoc, deleteDoc } from '@angular/fire/firestore';
+import { Observable } from 'rxjs';
+
+export interface Programmer {
+  id?: string;
+  name: string;
+  specialty: string;
+  description?: string;
+  photoUrl?: string;
+  contact: any;
+  availability?: any[];
+  projects?: any[];
+}
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root' 
 })
 export class UserService {
   private firestore = inject(Firestore);
-  
-  private programmersCollection = collection(this.firestore, 'programmers');
+  private collectionName = 'programmers';
 
-  addProgrammer(programmer: Programmer) {
-    return from(addDoc(this.programmersCollection, programmer));
+  getProgrammers(): Observable<Programmer[]> {
+    const ref = collection(this.firestore, this.collectionName);
+    return collectionData(ref, { idField: 'id' }) as Observable<Programmer[]>;
   }
 
-  getProgrammers() {
-    return from(getDocs(this.programmersCollection));
+  addProgrammer(programmer: Programmer) {
+    const ref = collection(this.firestore, this.collectionName);
+    return addDoc(ref, programmer);
+  }
+
+  updateProgrammer(id: string, data: any) {
+    const docRef = doc(this.firestore, this.collectionName, id);
+    return updateDoc(docRef, data);
+  }
+
+  deleteProgrammer(id: string) {
+    const docRef = doc(this.firestore, this.collectionName, id);
+    return deleteDoc(docRef);
   }
 }
