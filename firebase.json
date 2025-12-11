@@ -1,1 +1,16 @@
-{}
+{
+  "hosting": {
+    "public": "dist/portafolio-calle-torres-2025",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }
+}

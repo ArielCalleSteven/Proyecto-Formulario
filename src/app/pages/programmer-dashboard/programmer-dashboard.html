@@ -5,7 +5,6 @@
   </div>
 
   <div class="relative z-10 flex flex-col md:flex-row justify-between items-center mb-8 border-b border-gray-800 pb-4">
-    
     <div class="flex items-center gap-4 w-full md:w-auto mb-4 md:mb-0">
       <div class="w-12 h-12 border border-[#FF003C] text-[#FF003C] flex items-center justify-center font-bold text-xl bg-[#FF003C]/10 shadow-[0_0_15px_rgba(255,0,60,0.2)]">
         {{ myProfile?.name?.substring(0,2).toUpperCase() || 'OP' }}
@@ -24,7 +23,7 @@
     <div class="flex gap-3">
       <button [routerLink]="['/portfolio', myProfile?.id]" class="btn btn-sm bg-transparent border border-cyan-500 text-cyan-400 hover:bg-cyan-500/10 hover:text-white hover:shadow-[0_0_15px_#06b6d4] rounded-sm tracking-widest font-normal text-xs">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
-        VIEW PUBLIC_PORTFOLIO
+        VER PORTAFOLIO
       </button>
       <button (click)="logout()" class="btn btn-sm btn-square bg-[#111] border border-gray-700 text-red-500 hover:bg-red-900/20 hover:border-red-500 rounded-sm" title="ABORT_SESSION">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
@@ -39,140 +38,119 @@
 
   <div *ngIf="!isLoading && myProfile" class="relative z-10 flex-grow flex flex-col gap-8">
 
-    <div class="w-full bg-[#0a0a0a] border border-gray-800 p-6 relative overflow-hidden group">
-      <div class="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-[#FF003C] to-purple-600"></div>
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 h-full">
       
-      <div class="flex justify-between items-start relative z-10">
-        <div>
-          <h2 class="text-3xl text-white font-bold mb-2 flex items-center gap-2" style="font-family: 'Orbitron', sans-serif;">
-            WELCOME_BACK, <span class="text-[#FF003C]">{{ myProfile.name }}</span>
-          </h2>
-          <p class="text-gray-500 text-xs max-w-2xl tracking-wide font-mono">
-            >> Panel de control operativo. Gestiona tus despliegues de código y solicitudes de enlace entrantes.
-          </p>
-        </div>
-        <div class="hidden md:block text-gray-800">
-          <svg width="80" height="40" viewBox="0 0 100 50" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M0 25H100M25 0V50M75 0V50" stroke="currentColor" stroke-width="1"/>
-          </svg>
-        </div>
-      </div>
-    </div>
-
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 h-full">
-      
-      <div class="flex flex-col gap-4">
+      <div class="lg:col-span-7 flex flex-col gap-4">
         <h3 class="text-sm font-bold text-gray-400 flex items-center gap-2 tracking-[0.2em] uppercase border-b border-gray-800 pb-2">
           <span class="text-[#FF003C]">●</span> INCOMING REQUESTS
         </h3>
 
         <div *ngIf="appointments.length === 0" class="flex-grow min-h-[300px] border border-gray-800 bg-[#080808] flex flex-col items-center justify-center relative p-8 text-center">
-          <div class="absolute top-0 right-0 w-3 h-3 border-t border-r border-[#FF003C]"></div>
-          <div class="absolute bottom-0 left-0 w-3 h-3 border-b border-l border-[#FF003C]"></div>
-          
           <div class="p-4 bg-gray-900/50 border border-gray-700 text-gray-400 text-xs tracking-widest font-mono mb-2">
-            // NO_DATA_FOUND
+            // NO DATA FOUND
           </div>
           <p class="text-[10px] text-gray-600 animate-pulse">ESPERANDO NUEVAS TRANSMISIONES...</p>
         </div>
 
-        <div *ngIf="appointments.length > 0" class="flex flex-col gap-4">
-          <div *ngFor="let app of appointments" class="bg-[#0a0a0a] border border-gray-800 p-5 hover:border-[#FF003C] transition-all group relative">
-            
-            <div class="absolute top-0 right-0 p-2">
-               <span class="text-[10px] font-bold px-2 py-1 uppercase tracking-wider border"
-                     [ngClass]="{
-                       'border-yellow-600 text-yellow-500 bg-yellow-900/10': app.status === 'Pendiente',
-                       'border-green-600 text-green-500 bg-green-900/10': app.status === 'Aprobada',
-                       'border-red-600 text-red-500 bg-red-900/10': app.status === 'Rechazada'
-                     }">
-                 {{ app.status }}
-               </span>
-            </div>
+        <div *ngIf="appointments.length > 0" class="overflow-x-auto border border-gray-800 bg-[#0a0a0a] rounded-sm shadow-lg">
+          <table class="table w-full text-xs font-mono">
+            <thead class="bg-[#111] text-[#FF003C] border-b border-gray-800">
+              <tr>
+                <th>FECHA</th>
+                <th>ESTUDIANTE</th>
+                <th>MENSAJE</th>
+                <th class="w-40">ESTADO / ACCIÓN</th>
+              </tr>
+            </thead>
+            <tbody class="text-gray-300">
+              <tr *ngFor="let app of appointments" class="hover:bg-white/5 border-b border-gray-900">
+                
+                <td>
+                  <div class="flex flex-col">
+                    <span class="text-white font-bold">{{ app.date }}</span>
+                    <span class="text-gray-500">{{ app.time }}</span>
+                  </div>
+                </td>
 
-            <div class="mb-3">
-              <span class="text-[10px] text-gray-600 font-mono block mb-1">SOURCE_ID:</span>
-              <h4 class="text-white font-bold text-lg tracking-wide">{{ app.studentEmail }}</h4>
-            </div>
+                <td>
+                  <div class="font-bold text-white">{{ app.studentEmail }}</div>
+                  <span class="text-[10px] text-gray-600">ID: STUDENT</span>
+                </td>
 
-            <div class="grid grid-cols-2 gap-4 mb-4 border-b border-gray-900 pb-3">
-              <div>
-                <span class="text-[10px] text-gray-600 block">TARGET_DATE</span>
-                <span class="text-sm text-gray-300 font-mono">{{ app.date }}</span>
-              </div>
-              <div>
-                <span class="text-[10px] text-gray-600 block">TARGET_TIME</span>
-                <span class="text-sm text-gray-300 font-mono">{{ app.time }}</span>
-              </div>
-            </div>
-            
-            <p class="text-gray-500 text-xs mb-4 italic border-l-2 border-gray-700 pl-3">"{{ app.comment }}"</p>
+                <td>
+                  <div class="max-w-[150px] truncate text-gray-400 italic" title="{{ app.comment }}">
+                    "{{ app.comment }}"
+                  </div>
+                  <div *ngIf="app.programmerResponse" class="text-[10px] text-[#FF003C] mt-1">
+                    > {{ app.programmerResponse }}
+                  </div>
+                </td>
 
-            <div *ngIf="app.status === 'Pendiente'">
-              <textarea [(ngModel)]="app.replyMessage" class="textarea textarea-sm bg-[#111] border-gray-700 w-full text-white mb-3 focus:border-[#FF003C] focus:outline-none rounded-sm text-xs font-mono" placeholder=">> Ingresar protocolo de respuesta..."></textarea>
-              <div class="flex gap-2">
-                <button class="btn btn-sm bg-[#FF003C] hover:bg-[#FF003C]/80 rounded-sm font-bold text-white flex-1 border-0 tracking-wider text-xs" (click)="respondAppointment(app, 'Aprobada')">AUTORIZAR</button>
-                <button class="btn btn-sm btn-outline border-gray-600 text-gray-400 hover:text-white rounded-sm flex-1 text-xs" (click)="respondAppointment(app, 'Rechazada')">DENEGAR</button>
-              </div>
-            </div>
+                <td>
+                  <div *ngIf="app.status === 'Pendiente'" class="flex flex-col gap-2">
+                    <input type="text" [(ngModel)]="app.replyMessage" class="input input-xs bg-[#161616] border-gray-700 text-white w-full rounded-sm focus:border-[#FF003C]" placeholder="Respuesta..." />
+                    <div class="flex gap-1">
+                      <button class="btn btn-xs bg-[#FF003C] border-0 text-white hover:bg-[#d10030] rounded-sm flex-1" (click)="respondAppointment(app, 'Aprobada')">✔</button>
+                      <button class="btn btn-xs btn-outline border-gray-600 text-gray-400 hover:text-white rounded-sm flex-1" (click)="respondAppointment(app, 'Rechazada')">✖</button>
+                    </div>
+                  </div>
 
-            <div *ngIf="app.status !== 'Pendiente'" class="bg-gray-900/30 p-3 border border-gray-800">
-              <p class="text-[10px] text-gray-500 mb-2 font-mono">> LOG_RESPONSE: <span class="text-gray-300">{{ app.programmerResponse }}</span></p>
-              <div class="flex gap-2 items-center">
-                <span class="text-[10px] text-[#FF003C] font-bold">ESTABLISH_COMMS:</span>
-                <button class="btn btn-xs rounded-none bg-green-900/20 text-green-500 border border-green-900 hover:bg-green-500 hover:text-black" (click)="notifyStudent(app, 'whatsapp')">WHATSAPP</button>
-                <button class="btn btn-xs rounded-none bg-white/5 text-white border border-gray-600 hover:bg-white hover:text-black" (click)="notifyStudent(app, 'email')">EMAIL</button>
-              </div>
-            </div>
+                  <div *ngIf="app.status !== 'Pendiente'" class="flex flex-col gap-2 items-start">
+                    <span class="badge badge-xs rounded-sm font-bold uppercase tracking-wider border-0"
+                          [ngClass]="{'bg-green-500 text-black': app.status === 'Aprobada', 'bg-red-500 text-white': app.status === 'Rechazada'}">
+                      {{ app.status }}
+                    </span>
+                    <div class="flex gap-1">
+                      <button class="btn btn-xs btn-square bg-[#25D366] border-0 text-white hover:bg-[#1da851] rounded-sm" title="WhatsApp" (click)="notifyStudent(app, 'whatsapp')">W</button>
+                      <button class="btn btn-xs btn-square bg-white border-0 text-black hover:bg-gray-200 rounded-sm" title="Email" (click)="notifyStudent(app, 'email')">@</button>
+                    </div>
+                  </div>
+                </td>
 
-          </div>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
 
-      <div class="flex flex-col gap-4">
+      <div class="lg:col-span-5 flex flex-col gap-4">
         <div class="flex justify-between items-center border-b border-gray-800 pb-2">
           <h3 class="text-sm font-bold text-gray-400 flex items-center gap-2 tracking-[0.2em] uppercase">
-            <span class="text-cyan-500">●</span> PROJECT REPOSITORY
+            <span class="text-cyan-500">●</span> REPOSITORY
           </h3>
           <button class="btn btn-xs border-0 bg-cyan-600 text-white hover:bg-cyan-500 rounded-sm font-bold shadow-[0_0_10px_#0891b2] tracking-wider" (click)="openModal()">
-            + INICIAR PROYECTO
+            + NUEVO
           </button>
         </div>
 
-        <div *ngIf="!myProfile.projects || myProfile.projects.length === 0" class="flex-grow min-h-[300px] border border-gray-800 bg-[#080808] flex flex-col items-center justify-center relative p-8">
-          <div class="absolute bottom-0 left-0 w-3 h-3 border-b border-l border-cyan-500"></div>
-          <div class="absolute top-0 right-0 w-3 h-3 border-t border-r border-cyan-500"></div>
-
-          <div class="w-16 h-16 border border-dashed border-gray-700 rounded-full flex items-center justify-center text-gray-600 mb-4 animate-pulse">
+        <div *ngIf="!myProfile.projects || myProfile.projects.length === 0" class="flex-grow min-h-[200px] border border-gray-800 bg-[#080808] flex flex-col items-center justify-center relative p-8">
+          <div class="w-12 h-12 border border-dashed border-gray-700 rounded-full flex items-center justify-center text-gray-600 mb-2">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
           </div>
-          <p class="text-gray-500 text-xs font-mono">DATABASE EMPTY.</p>
-          <button class="btn btn-link no-underline text-cyan-500 hover:text-white text-xs" (click)="openModal()">[UPLOAD_FIRST_ENTRY]</button>
+          <p class="text-gray-500 text-xs font-mono">NO PROJECTS.</p>
         </div>
 
-        <div *ngIf="myProfile.projects && myProfile.projects.length > 0" class="grid gap-4">
-          <div *ngFor="let p of myProfile.projects; let i = index" class="bg-[#0a0a0a] border border-gray-700 p-5 relative group hover:border-cyan-500 transition-colors">
+        <div *ngIf="myProfile.projects && myProfile.projects.length > 0" class="flex flex-col gap-3">
+          <div *ngFor="let p of myProfile.projects; let i = index" class="bg-[#0a0a0a] border border-gray-700 p-4 relative group hover:border-cyan-500 transition-colors rounded-sm">
             
-            <div class="flex justify-between items-start mb-2">
+            <div class="flex justify-between items-start mb-1">
               <div>
-                <h4 class="text-white font-bold text-base tracking-wide">{{ p.title }}</h4>
+                <h4 class="text-white font-bold text-sm tracking-wide">{{ p.title }}</h4>
                 <div class="flex gap-2 mt-1">
                   <span class="text-[10px] border border-gray-600 px-1 text-gray-400 bg-gray-900 uppercase">{{ p.category }}</span>
-                  <span class="text-[10px] text-cyan-600 font-mono border border-cyan-900/30 px-1 bg-cyan-900/10">{{ p.role }}</span>
+                  <span class="text-[10px] text-cyan-600 font-mono">{{ p.role }}</span>
                 </div>
               </div>
-              <div class="flex gap-2 opacity-50 group-hover:opacity-100 transition-opacity">
+              <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                 <button class="text-gray-400 hover:text-cyan-400 text-[10px] border border-gray-700 px-1" (click)="openEditModal(p, i)">EDIT</button>
                 <button class="text-gray-400 hover:text-[#FF003C] text-[10px] border border-gray-700 px-1" (click)="askDeleteProject(i)">DEL</button>
               </div>
             </div>
             
-            <p class="text-gray-500 text-xs mt-3 line-clamp-2 font-mono border-l border-gray-800 pl-2 leading-relaxed">{{ p.description }}</p>
-            
-            <div class="mt-4 pt-3 border-t border-gray-800 flex justify-between items-center text-[10px] text-gray-600 font-mono">
-              <span>STACK: {{ p.tech ? p.tech.length : 0 }} MODULES</span>
-              <a *ngIf="p.repo" [href]="p.repo" target="_blank" class="text-gray-400 hover:text-white flex items-center gap-1">
-                REPO_LINK <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+            <div class="mt-2 pt-2 border-t border-gray-800 flex justify-between items-center text-[10px] text-gray-600 font-mono">
+              <span>Stack: {{ p.tech ? p.tech.length : 0 }}</span>
+              <a *ngIf="p.repo" [href]="p.repo" target="_blank" class="text-gray-500 hover:text-white flex items-center gap-1">
+                LINK ↗
               </a>
             </div>
           </div>
@@ -183,23 +161,60 @@
 
     <div class="mt-auto pt-4 border-t border-gray-900 text-[10px] text-gray-700 font-mono flex justify-between items-center">
       <div class="flex gap-6">
-        <div>
-          <span class="text-cyan-700 block">CPU</span>
-          12%
-        </div>
-        <div>
-          <span class="text-red-900 block">MEM</span>
-          4.2 TB
-        </div>
-        <div>
-          <span class="text-yellow-700 block">NET</span>
-          SECURE
-        </div>
+        <div><span class="text-cyan-700 block">CPU</span> 12%</div>
+        <div><span class="text-red-900 block">MEM</span> 4.2 TB</div>
+        <div><span class="text-yellow-700 block">NET</span> SECURE</div>
       </div>
-      <div class="tracking-widest opacity-50">
-        V 2.0.77 // NIGHT_CITY_SERVER_01
-      </div>
+      <div class="tracking-widest opacity-50">V 2.0.77 // NIGHT_CITY_SERVER_01</div>
     </div>
 
   </div>
+</div>
+
+<div class="modal modal-bottom sm:modal-middle backdrop-blur-sm" [class.modal-open]="isModalOpen">
+  <div class="modal-box bg-[#111] border border-gray-700 shadow-2xl rounded-sm">
+    <h3 class="font-bold text-xl text-white mb-4 border-b border-gray-800 pb-2">
+      <span class="text-[#FF003C]">></span> {{ isEditingProject ? 'EDITAR PROYECTO' : 'NUEVO PROYECTO' }}
+    </h3>
+    
+    <div class="form-control gap-3 font-mono text-sm">
+      <div class="flex flex-col sm:flex-row gap-3">
+        <div class="w-full"><label class="label pl-0 text-gray-500 text-xs">TÍTULO *</label><input type="text" [(ngModel)]="newProject.title" class="input input-bordered bg-[#0a0a0a] border-gray-700 text-white w-full rounded-sm focus:border-[#FF003C] focus:outline-none" /></div>
+        <div class="w-full"><label class="label pl-0 text-gray-500 text-xs">CATEGORÍA</label><select [(ngModel)]="newProject.category" class="select select-bordered bg-[#0a0a0a] border-gray-700 text-white w-full rounded-sm focus:border-[#FF003C] focus:outline-none"><option>Académico</option><option>Laboral</option></select></div>
+      </div>
+      <div><label class="label pl-0 text-gray-500 text-xs">DESCRIPCIÓN *</label><textarea [(ngModel)]="newProject.description" class="textarea textarea-bordered bg-[#0a0a0a] border-gray-700 text-white w-full rounded-sm h-24 focus:border-[#FF003C] focus:outline-none"></textarea></div>
+      <div class="flex flex-col sm:flex-row gap-3">
+        <div class="w-full sm:w-1/3"><label class="label pl-0 text-gray-500 text-xs">ROL</label><select [(ngModel)]="newProject.role" class="select select-bordered bg-[#0a0a0a] border-gray-700 text-white w-full rounded-sm focus:border-[#FF003C] focus:outline-none"><option>Frontend</option><option>Backend</option><option>Full Stack</option></select></div>
+        <div class="w-full sm:w-2/3"><label class="label pl-0 text-gray-500 text-xs">TECNOLOGÍAS</label><input type="text" [(ngModel)]="newProject.techInput" class="input input-bordered bg-[#0a0a0a] border-gray-700 text-white w-full rounded-sm focus:border-[#FF003C] focus:outline-none" /></div>
+      </div>
+      <div class="divider text-xs text-gray-800">ENLACES</div>
+      <div class="grid grid-cols-2 gap-3">
+        <div><label class="label pl-0 text-[10px] text-gray-500">GITHUB URL</label><input type="text" [(ngModel)]="newProject.repo" class="input input-bordered input-sm bg-[#0a0a0a] border-gray-700 text-white w-full rounded-sm focus:border-[#FF003C] focus:outline-none" /></div>
+        <div><label class="label pl-0 text-[10px] text-gray-500">DEMO URL</label><input type="text" [(ngModel)]="newProject.demo" class="input input-bordered input-sm bg-[#0a0a0a] border-gray-700 text-white w-full rounded-sm focus:border-[#FF003C] focus:outline-none" /></div>
+      </div>
+    </div>
+    
+    <div class="modal-action mt-6">
+      <button class="btn btn-ghost text-gray-500 hover:text-white rounded-sm" (click)="closeModal()">CANCELAR</button>
+      <button class="btn border-0 rounded-sm text-white font-bold tracking-wider bg-[#FF003C] hover:bg-[#FF003C]/80 shadow-[0_0_10px_#FF003C]" (click)="saveProject()">GUARDAR</button>
+    </div>
+  </div>
+  <form method="dialog" class="modal-backdrop bg-black/90"><button (click)="closeModal()">close</button></form>
+</div>
+
+<div class="modal modal-bottom sm:modal-middle" [class.modal-open]="isAlertOpen">
+  <div class="modal-box bg-[#111] border border-gray-700 text-center shadow-2xl rounded-sm">
+    <div class="mx-auto mb-4 w-16 h-16 flex items-center justify-center rounded-full bg-opacity-10" [ngClass]="{ 'bg-green-500 text-green-500': alertType === 'success', 'bg-red-500 text-red-500': alertType === 'error', 'bg-yellow-500 text-yellow-500': alertType === 'warning' }">
+       <svg *ngIf="alertType === 'success'" xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+       <svg *ngIf="alertType === 'error'" xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+       <svg *ngIf="alertType === 'warning'" xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+    </div>
+    <h3 class="font-bold text-xl text-white mb-2">{{ alertTitle }}</h3>
+    <p class="text-gray-400 text-sm mb-6 whitespace-pre-line">{{ alertMessage }}</p>
+    <div class="modal-action justify-center gap-3">
+      <button *ngIf="alertType === 'warning'" class="btn btn-ghost text-gray-500 rounded-sm" (click)="onAlertCancel()">Cancelar</button>
+      <button class="btn btn-wide rounded-sm border-0 text-white font-bold" [ngClass]="{ 'bg-green-600 hover:bg-green-700': alertType === 'success', 'bg-red-600 hover:bg-red-700': alertType === 'error', 'bg-yellow-600 hover:bg-yellow-700 text-black': alertType === 'warning' }" (click)="onAlertConfirm()">{{ alertType === 'warning' ? 'Continuar' : 'Entendido' }}</button>
+    </div>
+  </div>
+  <form method="dialog" class="modal-backdrop bg-black/90"><button (click)="onAlertCancel()">close</button></form>
 </div>

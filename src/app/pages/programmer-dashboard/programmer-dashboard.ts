@@ -36,6 +36,7 @@ export class ProgrammerDashboardComponent implements OnInit {
     techInput: '', repo: '', demo: ''
   };
 
+  // Variables para Alerta Drácula
   isAlertOpen: boolean = false;
   alertTitle: string = '';
   alertMessage: string = '';
@@ -80,6 +81,10 @@ export class ProgrammerDashboardComponent implements OnInit {
     this.isAlertOpen = true;
   }
 
+  closeCustomAlert() {
+    this.isAlertOpen = false;
+  }
+
   onAlertConfirm() {
     this.isAlertOpen = false;
     this.alertCallback(); 
@@ -91,22 +96,22 @@ export class ProgrammerDashboardComponent implements OnInit {
 
   async respondAppointment(app: any, status: 'Aprobada' | 'Rechazada') {
     if (!app.replyMessage) {
-      this.showAlert('⚠️ Mensaje Requerido', 'Por favor escribe un mensaje de confirmación o justificación.', 'warning');
+      this.showAlert('⚠️ MENSAJE REQUERIDO', 'Por favor escribe un mensaje de confirmación o justificación.', 'warning');
       return;
     }
 
     try {
       await this.advisoryService.updateAppointmentStatus(app.id, status, app.replyMessage);
-      this.showAlert('¡Listo! 🚀', `La solicitud ha sido ${status} correctamente.`, 'success');
+      this.showAlert('¡LISTO! 🚀', `La solicitud ha sido ${status} correctamente.`, 'success');
     } catch (error) {
       console.error('Error actualizando cita:', error);
-      this.showAlert('Error', 'No se pudo actualizar la cita.', 'error');
+      this.showAlert('ERROR', 'No se pudo actualizar la cita.', 'error');
     }
   }
 
   async saveProject() {
     if (!this.newProject.title || !this.newProject.description) { 
-      this.showAlert('Campos Incompletos', 'El título y la descripción son obligatorios.', 'warning'); 
+      this.showAlert('CAMPOS INCOMPLETOS', 'El título y la descripción son obligatorios.', 'warning'); 
       return; 
     }
     
@@ -121,19 +126,19 @@ export class ProgrammerDashboardComponent implements OnInit {
       }
       
       await this.projectService.updateUserProjects(this.myProfile.id, this.myProfile.projects);
+      
       this.closeModal();
-      this.showAlert('¡Éxito!', 'El proyecto se ha guardado correctamente.', 'success');
+      this.showAlert('¡ÉXITO!', 'El proyecto se ha guardado correctamente.', 'success');
 
     } catch (error) { 
       console.error(error); 
-      this.showAlert('Error', 'Hubo un problema al guardar el proyecto.', 'error'); 
+      this.showAlert('ERROR', 'Hubo un problema al guardar el proyecto.', 'error'); 
     }
   }
 
-
   askDeleteProject(index: number) {
     this.showAlert(
-      '¿Estás seguro?', 
+      '¿ESTÁS SEGURO?', 
       'Esta acción eliminará el proyecto permanentemente. No se puede deshacer.', 
       'warning', 
       () => this.executeDeleteProject(index) 
@@ -144,15 +149,37 @@ export class ProgrammerDashboardComponent implements OnInit {
     try { 
       this.myProfile.projects.splice(index, 1); 
       await this.projectService.updateUserProjects(this.myProfile.id, this.myProfile.projects);
+      this.showAlert('ELIMINADO', 'Proyecto borrado del repositorio.', 'success');
     } catch (error) { 
       console.error(error); 
+      this.showAlert('ERROR', 'No se pudo borrar el proyecto.', 'error');
     } 
   }
 
   openModal() { this.isEditingProject = false; this.resetForm(); this.isModalOpen = true; }
-  openEditModal(project: any, index: number) { this.isEditingProject = true; this.currentProjectIndex = index; this.newProject = { title: project.title, description: project.description, category: project.category, role: project.role, techInput: project.tech ? project.tech.join(', ') : '', repo: project.repo || '', demo: project.demo || '' }; this.isModalOpen = true; }
+  
+  openEditModal(project: any, index: number) { 
+    this.isEditingProject = true; 
+    this.currentProjectIndex = index; 
+    this.newProject = { 
+        title: project.title, 
+        description: project.description, 
+        category: project.category, 
+        role: project.role, 
+        techInput: project.tech ? project.tech.join(', ') : '', 
+        repo: project.repo || '', 
+        demo: project.demo || '' 
+    }; 
+    this.isModalOpen = true; 
+  }
+  
   closeModal() { this.isModalOpen = false; this.resetForm(); }
-  resetForm() { this.isEditingProject = false; this.currentProjectIndex = null; this.newProject = { title: '', description: '', category: 'Académico', role: 'Frontend', techInput: '', repo: '', demo: '' }; }
+  
+  resetForm() { 
+    this.isEditingProject = false; 
+    this.currentProjectIndex = null; 
+    this.newProject = { title: '', description: '', category: 'Académico', role: 'Frontend', techInput: '', repo: '', demo: '' }; 
+  }
 
   notifyStudent(app: any, method: 'whatsapp' | 'email') {
     if (!app.studentEmail) return;
