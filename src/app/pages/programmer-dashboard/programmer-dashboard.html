@@ -1,222 +1,205 @@
-<div class="min-h-screen bg-base-200 font-sans pb-10">
+<div class="min-h-screen bg-[#050505] p-4 md:p-8 font-mono relative overflow-hidden flex flex-col">
   
-  <div class="navbar bg-base-100 shadow-md px-4 md:px-8 justify-between sticky top-0 z-50">
-    <div class="flex items-center gap-2">
-      <div class="avatar placeholder">
-        <div class="bg-neutral text-neutral-content rounded-full w-10">
-          <span>{{ myProfile?.name?.substring(0,2) || '...' }}</span>
-        </div>
+  <div class="absolute inset-0 opacity-10 pointer-events-none" 
+       style="background-image: linear-gradient(#333 1px, transparent 1px), linear-gradient(90deg, #333 1px, transparent 1px); background-size: 40px 40px;">
+  </div>
+
+  <div class="relative z-10 flex flex-col md:flex-row justify-between items-center mb-8 border-b border-gray-800 pb-4">
+    
+    <div class="flex items-center gap-4 w-full md:w-auto mb-4 md:mb-0">
+      <div class="w-12 h-12 border border-[#FF003C] text-[#FF003C] flex items-center justify-center font-bold text-xl bg-[#FF003C]/10 shadow-[0_0_15px_rgba(255,0,60,0.2)]">
+        {{ myProfile?.name?.substring(0,2).toUpperCase() || 'OP' }}
       </div>
       <div>
-        <h1 class="font-bold text-lg hidden sm:block">Mi Espacio</h1>
-        <p class="text-xs opacity-60" *ngIf="myProfile">{{ myProfile.name }}</p>
+        <h1 class="text-2xl font-black text-white tracking-widest uppercase" style="font-family: 'Orbitron', sans-serif;">
+          DEV <span class="text-[#FF003C]">NEXUS</span>
+        </h1>
+        <div class="flex items-center gap-2 text-[10px] text-gray-500 tracking-[0.2em] uppercase">
+          <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_5px_#22c55e]"></span>
+          System Online // {{ myProfile?.name }}
+        </div>
       </div>
     </div>
 
-    <div class="flex gap-2">
-      <button *ngIf="myProfile" [routerLink]="['/portfolio', myProfile.id]" class="btn btn-secondary btn-sm text-white gap-2">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-        Ver mi Portafolio
+    <div class="flex gap-3">
+      <button [routerLink]="['/portfolio', myProfile?.id]" class="btn btn-sm bg-transparent border border-cyan-500 text-cyan-400 hover:bg-cyan-500/10 hover:text-white hover:shadow-[0_0_15px_#06b6d4] rounded-sm tracking-widest font-normal text-xs">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
+        VIEW PUBLIC_PORTFOLIO
       </button>
-      <button class="btn btn-error btn-sm text-white" (click)="logout()" title="Cerrar Sesión">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+      <button (click)="logout()" class="btn btn-sm btn-square bg-[#111] border border-gray-700 text-red-500 hover:bg-red-900/20 hover:border-red-500 rounded-sm" title="ABORT_SESSION">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
       </button>
     </div>
   </div>
 
-  <div class="p-4 md:p-8 max-w-5xl mx-auto">
-    
-    <div *ngIf="isLoading" class="text-center mt-10">
-      <span class="loading loading-spinner loading-lg text-primary"></span>
+  <div *ngIf="isLoading" class="flex-grow flex flex-col items-center justify-center gap-4">
+    <span class="loading loading-bars loading-lg text-[#FF003C]"></span>
+    <span class="text-xs text-gray-500 animate-pulse tracking-widest">INITIALIZING_MODULES...</span>
+  </div>
+
+  <div *ngIf="!isLoading && myProfile" class="relative z-10 flex-grow flex flex-col gap-8">
+
+    <div class="w-full bg-[#0a0a0a] border border-gray-800 p-6 relative overflow-hidden group">
+      <div class="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-[#FF003C] to-purple-600"></div>
+      
+      <div class="flex justify-between items-start relative z-10">
+        <div>
+          <h2 class="text-3xl text-white font-bold mb-2 flex items-center gap-2" style="font-family: 'Orbitron', sans-serif;">
+            WELCOME_BACK, <span class="text-[#FF003C]">{{ myProfile.name }}</span>
+          </h2>
+          <p class="text-gray-500 text-xs max-w-2xl tracking-wide font-mono">
+            >> Panel de control operativo. Gestiona tus despliegues de código y solicitudes de enlace entrantes.
+          </p>
+        </div>
+        <div class="hidden md:block text-gray-800">
+          <svg width="80" height="40" viewBox="0 0 100 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0 25H100M25 0V50M75 0V50" stroke="currentColor" stroke-width="1"/>
+          </svg>
+        </div>
+      </div>
     </div>
 
-    <div *ngIf="!isLoading && myProfile" class="flex flex-col gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 h-full">
       
-      <div class="card bg-base-100 shadow-xl border-l-4 border-primary">
-        <div class="card-body">
-          <h2 class="card-title text-2xl">¡Hola, {{ myProfile.name }}! 👋</h2>
-          <p class="opacity-70">Aquí gestionas tus proyectos y las citas con estudiantes.</p>
+      <div class="flex flex-col gap-4">
+        <h3 class="text-sm font-bold text-gray-400 flex items-center gap-2 tracking-[0.2em] uppercase border-b border-gray-800 pb-2">
+          <span class="text-[#FF003C]">●</span> INCOMING REQUESTS
+        </h3>
+
+        <div *ngIf="appointments.length === 0" class="flex-grow min-h-[300px] border border-gray-800 bg-[#080808] flex flex-col items-center justify-center relative p-8 text-center">
+          <div class="absolute top-0 right-0 w-3 h-3 border-t border-r border-[#FF003C]"></div>
+          <div class="absolute bottom-0 left-0 w-3 h-3 border-b border-l border-[#FF003C]"></div>
+          
+          <div class="p-4 bg-gray-900/50 border border-gray-700 text-gray-400 text-xs tracking-widest font-mono mb-2">
+            // NO_DATA_FOUND
+          </div>
+          <p class="text-[10px] text-gray-600 animate-pulse">ESPERANDO NUEVAS TRANSMISIONES...</p>
+        </div>
+
+        <div *ngIf="appointments.length > 0" class="flex flex-col gap-4">
+          <div *ngFor="let app of appointments" class="bg-[#0a0a0a] border border-gray-800 p-5 hover:border-[#FF003C] transition-all group relative">
+            
+            <div class="absolute top-0 right-0 p-2">
+               <span class="text-[10px] font-bold px-2 py-1 uppercase tracking-wider border"
+                     [ngClass]="{
+                       'border-yellow-600 text-yellow-500 bg-yellow-900/10': app.status === 'Pendiente',
+                       'border-green-600 text-green-500 bg-green-900/10': app.status === 'Aprobada',
+                       'border-red-600 text-red-500 bg-red-900/10': app.status === 'Rechazada'
+                     }">
+                 {{ app.status }}
+               </span>
+            </div>
+
+            <div class="mb-3">
+              <span class="text-[10px] text-gray-600 font-mono block mb-1">SOURCE_ID:</span>
+              <h4 class="text-white font-bold text-lg tracking-wide">{{ app.studentEmail }}</h4>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 mb-4 border-b border-gray-900 pb-3">
+              <div>
+                <span class="text-[10px] text-gray-600 block">TARGET_DATE</span>
+                <span class="text-sm text-gray-300 font-mono">{{ app.date }}</span>
+              </div>
+              <div>
+                <span class="text-[10px] text-gray-600 block">TARGET_TIME</span>
+                <span class="text-sm text-gray-300 font-mono">{{ app.time }}</span>
+              </div>
+            </div>
+            
+            <p class="text-gray-500 text-xs mb-4 italic border-l-2 border-gray-700 pl-3">"{{ app.comment }}"</p>
+
+            <div *ngIf="app.status === 'Pendiente'">
+              <textarea [(ngModel)]="app.replyMessage" class="textarea textarea-sm bg-[#111] border-gray-700 w-full text-white mb-3 focus:border-[#FF003C] focus:outline-none rounded-sm text-xs font-mono" placeholder=">> Ingresar protocolo de respuesta..."></textarea>
+              <div class="flex gap-2">
+                <button class="btn btn-sm bg-[#FF003C] hover:bg-[#FF003C]/80 rounded-sm font-bold text-white flex-1 border-0 tracking-wider text-xs" (click)="respondAppointment(app, 'Aprobada')">AUTORIZAR</button>
+                <button class="btn btn-sm btn-outline border-gray-600 text-gray-400 hover:text-white rounded-sm flex-1 text-xs" (click)="respondAppointment(app, 'Rechazada')">DENEGAR</button>
+              </div>
+            </div>
+
+            <div *ngIf="app.status !== 'Pendiente'" class="bg-gray-900/30 p-3 border border-gray-800">
+              <p class="text-[10px] text-gray-500 mb-2 font-mono">> LOG_RESPONSE: <span class="text-gray-300">{{ app.programmerResponse }}</span></p>
+              <div class="flex gap-2 items-center">
+                <span class="text-[10px] text-[#FF003C] font-bold">ESTABLISH_COMMS:</span>
+                <button class="btn btn-xs rounded-none bg-green-900/20 text-green-500 border border-green-900 hover:bg-green-500 hover:text-black" (click)="notifyStudent(app, 'whatsapp')">WHATSAPP</button>
+                <button class="btn btn-xs rounded-none bg-white/5 text-white border border-gray-600 hover:bg-white hover:text-black" (click)="notifyStudent(app, 'email')">EMAIL</button>
+              </div>
+            </div>
+
+          </div>
         </div>
       </div>
 
-      <div class="card bg-base-100 shadow-xl">
-        <div class="card-body">
-          <h3 class="font-bold text-xl mb-4 flex items-center gap-2">
-            📅 Solicitudes de Asesoría
-            <div class="badge badge-neutral" *ngIf="appointments.length">{{ appointments.length }}</div>
+      <div class="flex flex-col gap-4">
+        <div class="flex justify-between items-center border-b border-gray-800 pb-2">
+          <h3 class="text-sm font-bold text-gray-400 flex items-center gap-2 tracking-[0.2em] uppercase">
+            <span class="text-cyan-500">●</span> PROJECT REPOSITORY
           </h3>
+          <button class="btn btn-xs border-0 bg-cyan-600 text-white hover:bg-cyan-500 rounded-sm font-bold shadow-[0_0_10px_#0891b2] tracking-wider" (click)="openModal()">
+            + INICIAR PROYECTO
+          </button>
+        </div>
 
-          <div *ngIf="appointments.length === 0" class="alert alert-info bg-opacity-10">
-            <span>No tienes solicitudes de asesoría pendientes.</span>
+        <div *ngIf="!myProfile.projects || myProfile.projects.length === 0" class="flex-grow min-h-[300px] border border-gray-800 bg-[#080808] flex flex-col items-center justify-center relative p-8">
+          <div class="absolute bottom-0 left-0 w-3 h-3 border-b border-l border-cyan-500"></div>
+          <div class="absolute top-0 right-0 w-3 h-3 border-t border-r border-cyan-500"></div>
+
+          <div class="w-16 h-16 border border-dashed border-gray-700 rounded-full flex items-center justify-center text-gray-600 mb-4 animate-pulse">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
           </div>
+          <p class="text-gray-500 text-xs font-mono">DATABASE EMPTY.</p>
+          <button class="btn btn-link no-underline text-cyan-500 hover:text-white text-xs" (click)="openModal()">[UPLOAD_FIRST_ENTRY]</button>
+        </div>
 
-          <div class="grid gap-4">
-            <div *ngFor="let app of appointments" class="card bg-base-200 border border-base-300">
-              <div class="card-body p-4 sm:flex-row justify-between items-start gap-4">
-                
-                <div class="w-full sm:w-1/2">
-                  <div class="flex items-center gap-2 mb-1">
-                    <span class="badge" 
-                          [ngClass]="{
-                            'badge-warning': app.status === 'Pendiente',
-                            'badge-success': app.status === 'Aprobada',
-                            'badge-error text-white': app.status === 'Rechazada'
-                          }">
-                      {{ app.status }}
-                    </span>
-                    <span class="text-xs opacity-50">{{ app.createdAt?.seconds * 1000 | date:'short' }}</span>
-                  </div>
-                  
-                  <h4 class="font-bold text-lg">Solicitud de: {{ app.studentEmail }}</h4>
-                  <div class="text-sm mt-1">
-                    <p><strong>Fecha:</strong> {{ app.date }} a las {{ app.time }}</p>
-                    <p class="mt-2 bg-base-100 p-2 rounded text-xs italic">"{{ app.comment }}"</p>
-                  </div>
-
-                  <div *ngIf="app.status !== 'Pendiente'" class="mt-3 text-sm border-t border-base-300 pt-2">
-                    <p class="mb-2"><strong>Tu respuesta:</strong> {{ app.programmerResponse }}</p>
-                    <div class="flex flex-wrap gap-2 items-center">
-                      <span class="text-xs opacity-50 font-bold">Notificar externamente:</span>
-                      <button class="btn btn-xs btn-success text-white gap-1" (click)="notifyStudent(app, 'whatsapp')">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592z"/></svg> WhatsApp
-                      </button>
-                      <button class="btn btn-xs btn-outline gap-1" (click)="notifyStudent(app, 'email')">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4Zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1H2Zm13 2.383-4.708 2.825L15 11.105V5.383Zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741ZM1 11.105l4.708-2.897L1 5.383v5.722Z"/></svg> Correo
-                      </button>
-                    </div>
-                  </div>
+        <div *ngIf="myProfile.projects && myProfile.projects.length > 0" class="grid gap-4">
+          <div *ngFor="let p of myProfile.projects; let i = index" class="bg-[#0a0a0a] border border-gray-700 p-5 relative group hover:border-cyan-500 transition-colors">
+            
+            <div class="flex justify-between items-start mb-2">
+              <div>
+                <h4 class="text-white font-bold text-base tracking-wide">{{ p.title }}</h4>
+                <div class="flex gap-2 mt-1">
+                  <span class="text-[10px] border border-gray-600 px-1 text-gray-400 bg-gray-900 uppercase">{{ p.category }}</span>
+                  <span class="text-[10px] text-cyan-600 font-mono border border-cyan-900/30 px-1 bg-cyan-900/10">{{ p.role }}</span>
                 </div>
-
-                <div class="w-full sm:w-1/2 bg-base-100 p-3 rounded-lg" *ngIf="app.status === 'Pendiente'">
-                  <label class="label pt-0"><span class="label-text font-bold text-xs">Responder Solicitud:</span></label>
-                  <textarea [(ngModel)]="app.replyMessage" class="textarea textarea-bordered w-full h-20 text-sm mb-2" placeholder="Ej: Confirmado, te envío el link de Meet..."></textarea>
-                  <div class="flex gap-2">
-                    <button class="btn btn-success btn-sm flex-1 text-white" (click)="respondAppointment(app, 'Aprobada')">Aprobar ✅</button>
-                    <button class="btn btn-error btn-sm flex-1 text-white" (click)="respondAppointment(app, 'Rechazada')">Rechazar ❌</button>
-                  </div>
-                </div>
-
+              </div>
+              <div class="flex gap-2 opacity-50 group-hover:opacity-100 transition-opacity">
+                <button class="text-gray-400 hover:text-cyan-400 text-[10px] border border-gray-700 px-1" (click)="openEditModal(p, i)">EDIT</button>
+                <button class="text-gray-400 hover:text-[#FF003C] text-[10px] border border-gray-700 px-1" (click)="askDeleteProject(i)">DEL</button>
               </div>
             </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="card bg-base-100 shadow-xl">
-        <div class="card-body">
-          <div class="flex justify-between items-center mb-4">
-            <h3 class="font-bold text-xl">Mis Proyectos</h3>
-            <button class="btn btn-primary btn-sm" (click)="openModal()">+ Agregar Nuevo</button>
-          </div>
-
-          <div *ngIf="!myProfile.projects || myProfile.projects.length === 0" class="alert alert-ghost border-dashed border-2">
-            <span>No has subido proyectos todavía. ¡Agrega el primero! 🚀</span>
-          </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div *ngFor="let p of myProfile.projects; let i = index" class="card bg-base-200 shadow-sm border border-base-300">
-              <div class="card-body p-4">
-                
-                <div class="flex justify-between items-start">
-                  <div>
-                    <h4 class="font-bold">{{ p.title }}</h4>
-                    <div class="badge badge-outline text-xs">{{ p.category }}</div>
-                  </div>
-                  
-                  <div class="flex gap-2">
-                    <button class="btn btn-ghost btn-sm text-info tooltip tooltip-left" data-tip="Editar" (click)="openEditModal(p, i)">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                      </svg>
-                    </button>
-
-                    <button class="btn btn-ghost btn-sm text-error tooltip tooltip-left" data-tip="Eliminar" (click)="askDeleteProject(i)">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                    </button>
-                  </div>
-
-                </div>
-                <p class="text-xs opacity-70 truncate mt-2">{{ p.description }}</p>
-                <div class="mt-2 text-xs font-mono text-primary">{{ p.role }}</div>
-              </div>
+            
+            <p class="text-gray-500 text-xs mt-3 line-clamp-2 font-mono border-l border-gray-800 pl-2 leading-relaxed">{{ p.description }}</p>
+            
+            <div class="mt-4 pt-3 border-t border-gray-800 flex justify-between items-center text-[10px] text-gray-600 font-mono">
+              <span>STACK: {{ p.tech ? p.tech.length : 0 }} MODULES</span>
+              <a *ngIf="p.repo" [href]="p.repo" target="_blank" class="text-gray-400 hover:text-white flex items-center gap-1">
+                REPO_LINK <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+              </a>
             </div>
           </div>
         </div>
       </div>
 
     </div>
-  </div>
-</div>
 
-<div class="modal modal-bottom sm:modal-middle" [class.modal-open]="isModalOpen">
-  <div class="modal-box w-11/12 max-w-2xl bg-base-100 border border-base-300">
-    <h3 class="font-bold text-xl text-primary mb-4">
-      {{ isEditingProject ? '✏️ Editar Proyecto' : '🚀 Agregar Nuevo Proyecto' }}
-    </h3>
-    <div class="form-control gap-3">
-      <div class="flex flex-col sm:flex-row gap-3">
-        <div class="w-full"><label class="label"><span class="label-text">Nombre del Proyecto *</span></label><input type="text" [(ngModel)]="newProject.title" class="input input-bordered w-full" /></div>
-        <div class="w-full"><label class="label"><span class="label-text">Categoría</span></label><select [(ngModel)]="newProject.category" class="select select-bordered w-full"><option>Académico</option><option>Laboral</option></select></div>
+    <div class="mt-auto pt-4 border-t border-gray-900 text-[10px] text-gray-700 font-mono flex justify-between items-center">
+      <div class="flex gap-6">
+        <div>
+          <span class="text-cyan-700 block">CPU</span>
+          12%
+        </div>
+        <div>
+          <span class="text-red-900 block">MEM</span>
+          4.2 TB
+        </div>
+        <div>
+          <span class="text-yellow-700 block">NET</span>
+          SECURE
+        </div>
       </div>
-      <div><label class="label"><span class="label-text">Descripción *</span></label><textarea [(ngModel)]="newProject.description" class="textarea textarea-bordered w-full"></textarea></div>
-      <div class="flex flex-col sm:flex-row gap-3">
-        <div class="w-full sm:w-1/3"><label class="label"><span class="label-text">Tu Rol</span></label><select [(ngModel)]="newProject.role" class="select select-bordered w-full"><option>Frontend</option><option>Backend</option><option>Base de Datos</option><option>Full Stack</option></select></div>
-        <div class="w-full sm:w-2/3"><label class="label"><span class="label-text">Tecnologías (coma)</span></label><input type="text" [(ngModel)]="newProject.techInput" class="input input-bordered w-full" /></div>
+      <div class="tracking-widest opacity-50">
+        V 2.0.77 // NIGHT_CITY_SERVER_01
       </div>
-      <div class="divider text-xs opacity-50 font-bold">ENLACES</div>
-      <div class="grid grid-cols-2 gap-3">
-        <div><label class="label"><span class="label-text text-xs">Repo (GitHub)</span></label><input type="text" [(ngModel)]="newProject.repo" class="input input-bordered input-sm w-full" /></div>
-        <div><label class="label"><span class="label-text text-xs">Demo</span></label><input type="text" [(ngModel)]="newProject.demo" class="input input-bordered input-sm w-full" /></div>
-      </div>
-    </div>
-    <div class="modal-action mt-6">
-      <button class="btn btn-ghost" (click)="closeModal()">Cancelar</button>
-      <button class="btn btn-primary" (click)="saveProject()">{{ isEditingProject ? 'Actualizar Cambios' : 'Guardar Proyecto' }}</button>
-    </div>
-  </div>
-  <form method="dialog" class="modal-backdrop"><button (click)="closeModal()">close</button></form>
-</div>
-
-<div class="modal modal-bottom sm:modal-middle" [class.modal-open]="isAlertOpen">
-  <div class="modal-box text-center border border-base-300 shadow-2xl">
-    <div class="mx-auto mb-4 w-16 h-16 flex items-center justify-center rounded-full bg-opacity-20"
-         [ngClass]="{
-           'bg-success text-success': alertType === 'success',
-           'bg-error text-error': alertType === 'error',
-           'bg-warning text-warning': alertType === 'warning'
-         }">
-       <svg *ngIf="alertType === 'success'" xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
-       <svg *ngIf="alertType === 'error'" xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-       <svg *ngIf="alertType === 'warning'" xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-    </div>
-
-    <h3 class="font-bold text-2xl" 
-        [ngClass]="{
-           'text-success': alertType === 'success',
-           'text-error': alertType === 'error',
-           'text-warning': alertType === 'warning'
-        }">
-      {{ alertTitle }}
-    </h3>
-    
-    <p class="py-4 text-lg opacity-80 whitespace-pre-line">{{ alertMessage }}</p>
-
-    <div class="modal-action justify-center gap-3">
-      <button *ngIf="alertType === 'warning'" class="btn btn-ghost" (click)="onAlertCancel()">Cancelar</button>
-      
-      <button class="btn px-8" 
-              [ngClass]="{
-                 'btn-success text-white': alertType === 'success',
-                 'btn-error text-white': alertType === 'error',
-                 'btn-warning text-white': alertType === 'warning'
-              }" 
-              (click)="onAlertConfirm()">
-        {{ alertType === 'warning' ? 'Continuar' : 'Entendido' }}
-      </button>
     </div>
 
   </div>
-  <form method="dialog" class="modal-backdrop">
-    <button (click)="onAlertCancel()">close</button>
-  </form>
 </div>

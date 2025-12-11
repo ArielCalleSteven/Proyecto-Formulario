@@ -1,114 +1,138 @@
-<div class="min-h-screen bg-base-200 font-sans pb-20">
-
-  <div *ngIf="isLoading" class="flex justify-center items-center h-screen">
-    <span class="loading loading-infinity loading-lg text-primary"></span>
+<div class="min-h-screen bg-[#050505] font-sans pb-20 relative overflow-hidden flex flex-col items-center">
+  
+  <div class="absolute inset-0 opacity-10 pointer-events-none" 
+       style="background-image: linear-gradient(#333 1px, transparent 1px), linear-gradient(90deg, #333 1px, transparent 1px); background-size: 40px 40px;">
   </div>
 
-  <div *ngIf="!isLoading && programmer" class="animate-fade-in-up">
+  <div *ngIf="isLoading" class="flex justify-center items-center h-screen relative z-10">
+    <span class="loading loading-infinity loading-lg text-[#FF003C]"></span>
+  </div>
+
+  <div *ngIf="!isLoading && programmer" class="w-full max-w-6xl px-4 relative z-10 pt-12 animate-fade-in-up">
     
-    <div class="hero bg-base-100 shadow-xl mb-8 pb-8 pt-20"> 
-      <div class="hero-content flex-col lg:flex-row gap-8">
-        
-        <div class="avatar">
-          <div class="w-32 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2 shadow-2xl">
-            <img [src]="programmer.photoUrl || 'https://ui-avatars.com/api/?name=' + programmer.name" />
-          </div>
-        </div>
-
-        <div class="text-center lg:text-left">
-          <div class="badge badge-primary badge-outline mb-2">{{ programmer.specialty }}</div>
-          <h1 class="text-5xl font-bold text-base-content">{{ programmer.name }}</h1>
-          <p class="py-6 max-w-xl text-lg opacity-80">{{ programmer.description }}</p>
-          
-          <div class="flex gap-3 justify-center lg:justify-start">
-            
-            <a *ngIf="programmer.contact?.github" [href]="programmer.contact.github" target="_blank" class="btn btn-neutral btn-sm gap-2">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
-              GitHub
-            </a>
-            
-            <a [href]="'mailto:' + programmer.contact?.email" class="btn btn-primary btn-sm">Contactar</a>
-            
-            <a *ngIf="isOwner" routerLink="/programmer" class="btn btn-secondary btn-sm text-white">
-              ← Volver a mi Panel
-            </a>
-
-            <a *ngIf="!isOwner" routerLink="/home" class="btn btn-ghost btn-sm">
-              ← Volver
-            </a>
-
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="container mx-auto px-4">
+    <div class="flex flex-col items-center text-center mb-20">
       
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div class="relative mb-6 group">
+        <div class="absolute -inset-1 bg-gradient-to-r from-[#FF003C] to-purple-600 rounded-full blur opacity-50 group-hover:opacity-100 transition duration-1000"></div>
+        <div class="w-40 h-40 rounded-full ring-4 ring-[#050505] relative bg-black">
+          <img [src]="programmer.photoUrl || 'https://ui-avatars.com/api/?background=111&color=fff&name=' + programmer.name" 
+               class="rounded-full w-full h-full object-cover" />
+        </div>
+        <div class="absolute bottom-2 right-2 w-6 h-6 bg-green-500 border-4 border-[#050505] rounded-full shadow-[0_0_10px_#22c55e]"></div>
+      </div>
+
+      <div class="badge bg-[#FF003C]/10 text-[#FF003C] border-[#FF003C] mb-4 font-mono tracking-widest text-xs uppercase p-3 rounded-sm shadow-[0_0_15px_rgba(255,0,60,0.3)]">
+        {{ programmer.specialty }}
+      </div>
+      
+      <h1 class="text-5xl md:text-7xl font-black text-white mb-6 tracking-tight" style="font-family: 'Orbitron', sans-serif;">
+        {{ programmer.name }}
+      </h1>
+      
+      <p class="py-2 max-w-2xl text-lg text-gray-400 font-mono font-light leading-relaxed">
+        {{ programmer.description || 'Desarrollador enfocado en crear soluciones tecnológicas de alto impacto.' }}
+      </p>
+      
+      <div class="flex flex-wrap gap-4 justify-center mt-8">
         
-        <div>
-          <h2 class="text-2xl font-bold mb-6 flex items-center gap-2 text-secondary">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
-            Proyectos Académicos
-          </h2>
+        <a *ngIf="programmer.contact?.github" [href]="programmer.contact.github" target="_blank" class="btn bg-[#161b22] border-gray-700 text-white hover:bg-white hover:text-black btn-sm gap-2 font-mono rounded-sm px-6 h-10">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+          GITHUB
+        </a>
+        
+        <button (click)="notifyProgrammer()" class="btn border-0 bg-[#FF003C] hover:bg-[#d10030] text-white btn-sm px-8 font-bold shadow-[0_0_15px_#FF003C] tracking-wide rounded-sm h-10">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+          CONTACTAR
+        </button>
+        
+        <button *ngIf="isOwner" routerLink="/programmer" class="btn btn-outline border-cyan-500 text-cyan-500 hover:bg-cyan-500 hover:text-black btn-sm rounded-sm h-10">
+          MI PANEL
+        </button>
 
-          <div *ngIf="academicProjects.length === 0" class="alert alert-ghost border-dashed border-2 border-base-content/20">
-            <span>Aún no hay proyectos académicos registrados.</span>
-          </div>
-
-          <div *ngFor="let p of academicProjects" class="card bg-base-100 shadow-md mb-4 border-l-4 border-secondary hover:scale-[1.01] transition-transform">
-            <div class="card-body p-5">
-              <div class="flex justify-between items-start">
-                <h3 class="card-title text-lg">{{ p.title }}</h3>
-                <div class="badge badge-secondary badge-outline text-xs">{{ p.role }}</div>
-              </div>
-              
-              <p class="text-sm opacity-70 mt-2">{{ p.description }}</p>
-              
-              <div class="flex flex-wrap gap-1 mt-3">
-                <span *ngFor="let tech of p.tech" class="badge badge-ghost badge-xs">{{ tech }}</span>
-              </div>
-
-              <div class="card-actions justify-end mt-4 pt-2 border-t border-base-200">
-                <a *ngIf="p.repo" [href]="p.repo" target="_blank" class="link link-secondary text-xs no-underline font-bold">Ver Código</a>
-                <a *ngIf="p.demo" [href]="p.demo" target="_blank" class="link link-accent text-xs no-underline font-bold ml-3">Ver Demo Live</a>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <h2 class="text-2xl font-bold mb-6 flex items-center gap-2 text-accent">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
-            Proyectos Laborales
-          </h2>
-
-          <div *ngIf="workProjects.length === 0" class="alert alert-ghost border-dashed border-2 border-base-content/20">
-            <span>Aún no hay experiencia laboral registrada.</span>
-          </div>
-
-          <div *ngFor="let p of workProjects" class="card bg-base-100 shadow-md mb-4 border-l-4 border-accent hover:scale-[1.01] transition-transform">
-            <div class="card-body p-5">
-              <div class="flex justify-between items-start">
-                <h3 class="card-title text-lg">{{ p.title }}</h3>
-                <div class="badge badge-accent badge-outline text-xs">{{ p.role }}</div>
-              </div>
-              
-              <p class="text-sm opacity-70 mt-2">{{ p.description }}</p>
-              
-              <div class="flex flex-wrap gap-1 mt-3">
-                <span *ngFor="let tech of p.tech" class="badge badge-ghost badge-xs">{{ tech }}</span>
-              </div>
-
-              <div class="card-actions justify-end mt-4 pt-2 border-t border-base-200">
-                <a *ngIf="p.repo" [href]="p.repo" target="_blank" class="link link-secondary text-xs no-underline font-bold">Ver Código</a>
-                <a *ngIf="p.demo" [href]="p.demo" target="_blank" class="link link-accent text-xs no-underline font-bold ml-3">Ver Demo Live</a>
-              </div>
-            </div>
-          </div>
-        </div>
+        <button *ngIf="!isOwner" routerLink="/home" class="btn btn-ghost text-gray-500 hover:text-white btn-sm border border-gray-800 rounded-sm h-10">
+          ← VOLVER
+        </button>
 
       </div>
     </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+      
+      <div>
+        <h2 class="text-2xl font-black mb-8 flex items-center gap-3 text-white border-b border-purple-600 pb-4">
+          <span class="text-purple-500 text-3xl">📖</span>
+          PROYECTOS <span class="text-purple-500">ACADÉMICOS</span>
+        </h2>
+
+        <div *ngIf="!hasCategory('Académico')" class="alert bg-[#0a0a0a] border border-dashed border-gray-800 text-gray-500 font-mono text-sm py-12 justify-center rounded-sm">
+          <span>// NO DATA AVAILABLE</span>
+        </div>
+
+        <div *ngFor="let p of academicProjects" class="card bg-[#0a0a0a] border border-gray-800 shadow-lg mb-6 hover:border-purple-500 hover:shadow-[0_0_20px_rgba(168,85,247,0.15)] transition-all duration-300 group rounded-sm">
+          <div class="card-body p-6">
+            <div class="flex justify-between items-start mb-2">
+              <h3 class="card-title text-white group-hover:text-purple-400 transition-colors">{{ p.title }}</h3>
+              <div class="badge border-purple-500 text-purple-400 bg-purple-500/10 rounded-sm text-[10px] font-mono uppercase tracking-widest">{{ p.role }}</div>
+            </div>
+            
+            <p class="text-sm text-gray-400 mt-2 font-mono leading-relaxed line-clamp-3">{{ p.description }}</p>
+            
+            <div class="flex flex-wrap gap-2 mt-4">
+              <span *ngFor="let tech of p.tech" class="px-2 py-1 bg-[#1a1a1a] text-gray-500 border border-gray-800 text-[10px] font-bold rounded-sm uppercase tracking-wider">{{ tech }}</span>
+            </div>
+
+            <div class="card-actions justify-end mt-4 pt-4 border-t border-gray-900 gap-4">
+              <a *ngIf="p.repo" [href]="p.repo" target="_blank" class="link link-hover text-gray-500 hover:text-white text-xs font-mono uppercase flex items-center gap-1">
+                REPO <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+              </a>
+              <a *ngIf="p.demo" [href]="p.demo" target="_blank" class="link link-hover text-purple-400 hover:text-white text-xs font-mono uppercase font-bold flex items-center gap-1">
+                DEMO LIVE ↗
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <h2 class="text-2xl font-black mb-8 flex items-center gap-3 text-white border-b border-yellow-500 pb-4">
+          <span class="text-yellow-500 text-3xl">💼</span>
+          PROYECTOS <span class="text-yellow-500">LABORALES</span>
+        </h2>
+
+        <div *ngIf="!hasCategory('Laboral')" class="alert bg-[#0a0a0a] border border-dashed border-gray-800 text-gray-500 font-mono text-sm py-12 justify-center rounded-sm">
+          <span>// NO DATA AVAILABLE</span>
+        </div>
+
+        <div *ngFor="let p of workProjects" class="card bg-[#0a0a0a] border border-gray-800 shadow-lg mb-6 hover:border-yellow-500 hover:shadow-[0_0_20px_rgba(234,179,8,0.15)] transition-all duration-300 group rounded-sm">
+          <div class="card-body p-6">
+            <div class="flex justify-between items-start mb-2">
+              <h3 class="card-title text-white group-hover:text-yellow-400 transition-colors">{{ p.title }}</h3>
+              <div class="badge border-yellow-500 text-yellow-500 bg-yellow-500/10 rounded-sm text-[10px] font-mono uppercase tracking-widest">{{ p.role }}</div>
+            </div>
+            
+            <p class="text-sm text-gray-400 mt-2 font-mono leading-relaxed line-clamp-3">{{ p.description }}</p>
+            
+            <div class="flex flex-wrap gap-2 mt-4">
+              <span *ngFor="let tech of p.tech" class="px-2 py-1 bg-[#1a1a1a] text-gray-500 border border-gray-800 text-[10px] font-bold rounded-sm uppercase tracking-wider">{{ tech }}</span>
+            </div>
+
+            <div class="card-actions justify-end mt-4 pt-4 border-t border-gray-900 gap-4">
+              <a *ngIf="p.repo" [href]="p.repo" target="_blank" class="link link-hover text-gray-500 hover:text-white text-xs font-mono uppercase flex items-center gap-1">
+                REPO <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+              </a>
+              <a *ngIf="p.demo" [href]="p.demo" target="_blank" class="link link-hover text-yellow-500 hover:text-white text-xs font-mono uppercase font-bold flex items-center gap-1">
+                VER EMPRESA ↗
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    
+    <div class="mt-20 border-t border-gray-900 pt-8 text-center text-[10px] text-gray-600 font-mono uppercase tracking-widest">
+      © 2025 {{ programmer.name }} PORTFOLIO. <span class="text-[#FF003C]">CYBERPUNK EDITION.</span>
+    </div>
+
   </div>
 </div>

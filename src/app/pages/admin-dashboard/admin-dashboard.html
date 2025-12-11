@@ -1,29 +1,39 @@
-<div class="min-h-screen bg-base-200 p-4 md:p-8 font-sans">
+<div class="min-h-screen bg-[#050505] p-4 md:p-8 font-mono relative overflow-hidden">
   
-  <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+  <div class="absolute inset-0 opacity-10 pointer-events-none" 
+       style="background-image: linear-gradient(#333 1px, transparent 1px), linear-gradient(90deg, #333 1px, transparent 1px); background-size: 50px 50px;">
+  </div>
+
+  <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-6 relative z-10">
     
-    <div class="flex items-center gap-3 w-full md:w-auto">
-      <div class="p-3 bg-primary bg-opacity-20 rounded-lg text-primary">
+    <div class="flex items-center gap-4 w-full md:w-auto">
+      <div class="p-3 border border-[#FF003C] bg-[#FF003C]/10 text-[#FF003C] shadow-[0_0_15px_rgba(255,0,60,0.3)]">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
       </div>
       <div>
-        <h1 class="text-3xl font-bold text-base-content">Usuario Administrador</h1>
-        <p class="text-xs opacity-50">Panel de Administrador</p>
+        <h1 class="text-3xl font-black text-white tracking-widest uppercase" style="font-family: 'Orbitron', sans-serif;">CONSOLA DE</h1>
+        <p class="text-xs text-[#FF003C] tracking-[0.2em]">SYSTEM_ROOT // ACCESS_GRANTED</p>
       </div>
     </div>
 
     <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
       
-      <label class="input input-bordered flex items-center gap-2 w-full sm:w-80">
-        <input type="text" class="grow" placeholder="Search users..." [(ngModel)]="searchTerm" (input)="applyFilters()" />
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-4 h-4 opacity-70"><path fill-rule="evenodd" d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z" clip-rule="evenodd" /></svg>
-      </label>
+      <div class="form-control w-full sm:w-80">
+        <div class="input-group">
+          <input type="text" placeholder="SEARCH_DATABASE..." class="input input-bordered border-gray-700 bg-[#111] text-white w-full rounded-sm focus:outline-none focus:border-[#FF003C] placeholder-gray-600" [(ngModel)]="searchTerm" (input)="applyFilters()" />
+          <button class="btn btn-square border-gray-700 bg-[#222] rounded-sm text-gray-400 hover:bg-[#FF003C] hover:text-white hover:border-[#FF003C] transition-all">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-4 h-4"><path fill-rule="evenodd" d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z" clip-rule="evenodd" /></svg>
+          </button>
+        </div>
+      </div>
 
-      <button class="btn btn-primary text-white gap-2 shadow-lg hover:scale-105 transition-transform" (click)="openModal()">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" /></svg>
-        Add Programmer
+      <button class="btn border-0 rounded-sm text-white font-bold tracking-wider hover:shadow-[0_0_20px_#FF003C] transition-all"
+              style="background-color: #FF003C;" 
+              (click)="openModal()">
+        + ADD UNIT
       </button>
-      <button class="btn btn-error text-white shadow-lg hover:scale-105 transition-transform" (click)="logout()" title="Salir">
+      
+      <button class="btn rounded-sm border border-gray-700 bg-transparent text-gray-500 hover:bg-white hover:text-black hover:border-white transition-all" (click)="logout()" title="TERMINATE_SESSION">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
         </svg>
@@ -31,115 +41,119 @@
     </div>
   </div>
 
-  <div class="mb-6 overflow-x-auto pb-2">
+  <div class="mb-6 overflow-x-auto pb-2 border-b border-gray-800">
     <div class="flex gap-2 min-w-max">
       <button *ngFor="let spec of specialties" 
               (click)="selectedSpecialty = spec; applyFilters()"
-              class="btn btn-sm rounded-full"
-              [ngClass]="selectedSpecialty === spec ? 'btn-neutral text-white' : 'btn-ghost'">
-        {{ spec }}
+              class="btn btn-sm rounded-sm border-0 font-mono tracking-wide"
+              [ngClass]="selectedSpecialty === spec ? 'bg-white text-black font-bold' : 'bg-transparent text-gray-500 hover:text-white'">
+        [{{ spec }}]
       </button>
     </div>
   </div>
 
-  <div class="card bg-base-100 shadow-xl overflow-hidden border border-base-300">
-    <div class="overflow-x-auto">
-      <table class="table w-full">
-        <thead class="bg-base-200 text-base-content font-bold uppercase text-xs">
-          <tr>
-            <th>Name</th>
-            <th>Specialty</th>
-            <th>Description</th>
-            <th>Contact</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngIf="isLoading">
-            <td colspan="5" class="text-center py-10">
-              <span class="loading loading-spinner loading-lg text-primary"></span>
-              <p class="mt-2 text-sm opacity-50">Cargando datos...</p>
-            </td>
-          </tr>
+  <div class="overflow-x-auto border border-gray-800 bg-[#0a0a0a] shadow-2xl relative z-10">
+    <table class="table w-full">
+      <thead class="bg-[#111] text-[#FF003C] border-b border-gray-800 font-mono text-xs tracking-widest">
+        <tr>
+          <th>IDENTITY</th>
+          <th>CLASS_TYPE</th>
+          <th>DATA_LOG</th>
+          <th>COMMS_LINK</th>
+          <th>OPERATIONS</th>
+        </tr>
+      </thead>
+      <tbody class="text-gray-300 text-sm">
+        
+        <tr *ngIf="isLoading">
+          <td colspan="5" class="text-center py-10">
+            <span class="loading loading-bars loading-lg text-[#FF003C]"></span>
+            <p class="mt-2 text-xs text-gray-500 animate-pulse">LOADING_ASSETS...</p>
+          </td>
+        </tr>
 
-          <tr *ngFor="let p of filteredProgrammers" class="hover:bg-base-200 transition-colors duration-200">
-            <td>
-              <div class="flex items-center gap-3">
-                <div class="avatar placeholder">
-                  <div class="bg-neutral text-neutral-content rounded-full w-10">
-                    <span *ngIf="!p.photoUrl" class="text-xs">{{ p.name.substring(0,2).toUpperCase() }}</span>
-                    <img *ngIf="p.photoUrl" [src]="p.photoUrl" alt="Avatar" />
-                  </div>
-                </div>
-                <div>
-                  <div class="font-bold">{{ p.name }}</div>
-                  <div class="text-xs opacity-50">{{ p.id?.substring(0,6) }}</div>
+        <tr *ngFor="let p of filteredProgrammers" class="hover:bg-white/5 transition-colors border-b border-gray-800 group">
+          <td>
+            <div class="flex items-center gap-3">
+              <div class="avatar placeholder">
+                <div class="bg-gray-800 text-gray-300 rounded-sm w-10 ring-1 ring-gray-600 group-hover:ring-[#FF003C] transition-all">
+                  <span *ngIf="!p.photoUrl" class="text-xs">{{ p.name.substring(0,2).toUpperCase() }}</span>
+                  <img *ngIf="p.photoUrl" [src]="p.photoUrl" alt="Avatar" class="grayscale group-hover:grayscale-0 transition-all" />
                 </div>
               </div>
-            </td>
-            <td><div class="badge badge-outline badge-primary font-bold">{{ p.specialty }}</div></td>
-            <td><p class="truncate w-40 text-sm opacity-70" title="{{ p.description }}">{{ p.description || '...' }}</p></td>
-            <td>
-              <div class="flex flex-col text-xs gap-1">
-                <span class="font-mono opacity-80">{{ p.contact.email }}</span>
-                <div class="flex gap-2">
-                   <a *ngIf="p.contact.linkedin" [href]="p.contact.linkedin" target="_blank" class="link link-primary">Li</a>
-                   <a *ngIf="p.contact.github" [href]="p.contact.github" target="_blank" class="link link-accent">Git</a>
-                </div>
+              <div>
+                <div class="font-bold text-white group-hover:text-[#FF003C] transition-colors">{{ p.name }}</div>
+                <div class="text-[10px] text-gray-600 font-mono">ID: {{ p.id?.substring(0,8) }}...</div>
               </div>
-            </td>
-            
-            <td>
+            </div>
+          </td>
+          
+          <td>
+            <div class="badge badge-outline rounded-sm border-gray-600 text-gray-400 text-xs font-mono px-2 py-3 group-hover:border-[#FF003C] group-hover:text-[#FF003C] transition-all">
+              {{ p.specialty }}
+            </div>
+          </td>
+          
+          <td><p class="truncate w-40 text-xs opacity-60 font-mono">{{ p.description || 'NO_DATA' }}</p></td>
+          
+          <td>
+            <div class="flex flex-col text-xs gap-1">
+              <span class="font-mono text-gray-300">{{ p.contact.email }}</span>
               <div class="flex gap-2">
-                
-                <button class="btn btn-ghost btn-xs text-info tooltip" data-tip="Editar" (click)="editProgrammer(p)">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                  </svg>
-                </button>
-
-                <button class="btn btn-ghost btn-xs text-warning tooltip" data-tip="Gestionar Horarios" (click)="openScheduleModal(p)">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                </button>
-                
-                <button class="btn btn-ghost btn-xs text-error tooltip" data-tip="Eliminar" (click)="deleteProgrammer(p.id)">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                </button>
+                 <a *ngIf="p.contact.linkedin" [href]="p.contact.linkedin" target="_blank" class="link no-underline text-gray-500 hover:text-white text-[10px] border border-gray-700 px-1 hover:border-white transition-all">LNKD</a>
+                 <a *ngIf="p.contact.github" [href]="p.contact.github" target="_blank" class="link no-underline text-gray-500 hover:text-white text-[10px] border border-gray-700 px-1 hover:border-white transition-all">GIT</a>
               </div>
-            </td>
+            </div>
+          </td>
+          
+          <td>
+            <div class="flex gap-2">
+              
+              <button class="btn btn-square btn-xs rounded-sm bg-transparent border border-gray-600 text-gray-400 hover:border-cyan-400 hover:text-cyan-400 hover:bg-cyan-400/10" title="EDIT_DATA" (click)="editProgrammer(p)">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+              </button>
 
-          </tr>
-        </tbody>
-      </table>
-      
-      <div *ngIf="!isLoading && filteredProgrammers.length === 0" class="text-center p-10 opacity-50 border-t border-base-200">
-        <p>No se encontraron programadores.</p>
-        <button class="btn btn-link btn-sm" (click)="openModal()">¡Agrega el primero!</button>
-      </div>
+              <button class="btn btn-square btn-xs rounded-sm bg-transparent border border-gray-600 text-gray-400 hover:border-yellow-500 hover:text-yellow-500 hover:bg-yellow-500/10" title="SCHEDULE_GRID" (click)="openScheduleModal(p)">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+              </button>
+              
+              <button class="btn btn-square btn-xs rounded-sm bg-transparent border border-gray-600 text-gray-400 hover:border-[#FF003C] hover:text-[#FF003C] hover:bg-[#FF003C]/10" title="DELETE_UNIT" (click)="deleteProgrammer(p.id)">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+              </button>
+            </div>
+          </td>
+
+        </tr>
+      </tbody>
+    </table>
+    
+    <div *ngIf="!isLoading && filteredProgrammers.length === 0" class="text-center p-10 opacity-50 border-t border-gray-800">
+      <p class="font-mono text-[#FF003C]">> SYSTEM_ERROR: NO_RECORDS_FOUND</p>
+      <button class="btn btn-link btn-sm text-gray-400 no-underline hover:text-white" (click)="openModal()">[INITIALIZE_FIRST_UNIT]</button>
     </div>
   </div>
 </div>
 
-<div class="modal modal-bottom sm:modal-middle" [class.modal-open]="isModalOpen">
-  <div class="modal-box bg-base-100 shadow-2xl border border-base-300">
+<div class="modal modal-bottom sm:modal-middle backdrop-blur-sm" [class.modal-open]="isModalOpen">
+  <div class="modal-box bg-[#111] border border-gray-700 shadow-2xl rounded-sm w-11/12 max-w-3xl">
     
-    <h3 class="font-bold text-xl text-primary mb-4 flex items-center gap-2">
-      <span>{{ isEditing ? '✏️' : '✨' }}</span> 
-      {{ isEditing ? 'Editar Programador' : 'Registrar Nuevo Talento' }}
-    </h3>
+    <div class="flex justify-between items-center mb-6 border-b border-gray-800 pb-2">
+      <h3 class="font-bold text-xl text-white flex items-center gap-2 tracking-wider">
+        <span class="text-[#FF003C]">{{ isEditing ? '>> EDITING_PROTOCOL' : '>> NEW_ENTRY_PROTOCOL' }}</span> 
+      </h3>
+      <div class="badge badge-outline border-gray-600 text-gray-500 rounded-sm font-mono text-xs">V.2.0</div>
+    </div>
     
-    <div class="form-control gap-3">
+    <div class="form-control gap-4 font-mono text-sm">
       
-      <div class="flex flex-col sm:flex-row gap-3">
+      <div class="flex flex-col sm:flex-row gap-4">
         <div class="w-full">
-          <label class="label"><span class="label-text">Nombre Completo *</span></label>
-          <input type="text" [(ngModel)]="newProgrammer.name" name="nombre" placeholder="Ej. Alex Dev" class="input input-bordered w-full" />
+          <label class="label pl-0"><span class="label-text text-gray-500 font-bold text-xs">CODENAME / NAME *</span></label>
+          <input type="text" [(ngModel)]="newProgrammer.name" name="nombre" placeholder="Ex: Alex Dev" class="input input-bordered bg-[#0a0a0a] border-gray-700 text-white w-full rounded-sm focus:outline-none focus:border-[#FF003C]" />
         </div>
         <div class="w-full">
-          <label class="label"><span class="label-text">Especialidad</span></label>
-          <select [(ngModel)]="newProgrammer.specialty" name="especialidad" class="select select-bordered w-full">
+          <label class="label pl-0"><span class="label-text text-gray-500 font-bold text-xs">CLASS TYPE</span></label>
+          <select [(ngModel)]="newProgrammer.specialty" name="especialidad" class="select select-bordered bg-[#0a0a0a] border-gray-700 text-white w-full rounded-sm focus:outline-none focus:border-[#FF003C]">
             <option>Frontend Developer</option>
             <option>Backend Developer</option>
             <option>Full-Stack Developer</option>
@@ -149,117 +163,107 @@
       </div>
 
       <div>
-        <label class="label"><span class="label-text">Foto de Perfil (URL)</span></label>
-        <input type="text" [(ngModel)]="newProgrammer.photoUrl" name="foto" placeholder="https://imgur.com/..." class="input input-bordered w-full" />
+        <label class="label pl-0"><span class="label-text text-gray-500 font-bold text-xs">AVATAR LINK (URL)</span></label>
+        <input type="text" [(ngModel)]="newProgrammer.photoUrl" name="foto" placeholder="https://..." class="input input-bordered bg-[#0a0a0a] border-gray-700 text-white w-full rounded-sm focus:outline-none focus:border-[#FF003C] text-xs" />
       </div>
 
       <div>
-        <label class="label"><span class="label-text">Descripción</span></label>
-        <textarea [(ngModel)]="newProgrammer.description" name="desc" class="textarea textarea-bordered w-full" placeholder="Breve biografía profesional..."></textarea>
+        <label class="label pl-0"><span class="label-text text-gray-500 font-bold text-xs">BIO_DATA</span></label>
+        <textarea [(ngModel)]="newProgrammer.description" name="desc" class="textarea textarea-bordered bg-[#0a0a0a] border-gray-700 text-white w-full rounded-sm focus:outline-none focus:border-[#FF003C] h-20" placeholder="// Biography..."></textarea>
       </div>
 
-      <div class="divider text-xs opacity-50 font-bold">CONTACTO</div>
+      <div class="divider text-xs text-gray-800 font-bold">CONTACT_CHANNELS</div>
 
       <div>
-        <label class="label"><span class="label-text">Correo Electrónico *</span></label>
-        <input type="email" [(ngModel)]="newProgrammer.contact.email" name="email" placeholder="dev@empresa.com" class="input input-bordered w-full" />
+        <label class="label pl-0"><span class="label-text text-gray-500 font-bold text-xs">EMAIL_ID *</span></label>
+        <input type="email" [(ngModel)]="newProgrammer.contact.email" name="email" placeholder="dev@net.com" class="input input-bordered bg-[#0a0a0a] border-gray-700 text-white w-full rounded-sm focus:outline-none focus:border-[#FF003C]" />
       </div>
 
-      <div class="grid grid-cols-2 gap-3">
+      <div class="grid grid-cols-2 gap-4">
         <div>
-          <label class="label"><span class="label-text text-xs">LinkedIn (Opcional)</span></label>
-          <input type="text" [(ngModel)]="newProgrammer.contact.linkedin" name="linkedin" placeholder="URL Perfil" class="input input-bordered input-sm w-full" />
+          <label class="label pl-0"><span class="label-text text-[10px] text-gray-500">LINKEDIN_URL</span></label>
+          <input type="text" [(ngModel)]="newProgrammer.contact.linkedin" name="linkedin" placeholder="https://..." class="input input-bordered input-sm bg-[#0a0a0a] border-gray-700 text-white w-full rounded-sm focus:outline-none focus:border-[#FF003C] text-xs" />
         </div>
         <div>
-          <label class="label"><span class="label-text text-xs">GitHub (Opcional)</span></label>
-          <input type="text" [(ngModel)]="newProgrammer.contact.github" name="github" placeholder="URL Repo" class="input input-bordered input-sm w-full" />
+          <label class="label pl-0"><span class="label-text text-[10px] text-gray-500">GITHUB_URL</span></label>
+          <input type="text" [(ngModel)]="newProgrammer.contact.github" name="github" placeholder="https://..." class="input input-bordered input-sm bg-[#0a0a0a] border-gray-700 text-white w-full rounded-sm focus:outline-none focus:border-[#FF003C] text-xs" />
         </div>
       </div>
 
     </div>
 
-    <div class="modal-action mt-6">
-      <button class="btn btn-ghost hover:bg-base-200" (click)="closeModal()">Cancelar</button>
+    <div class="modal-action mt-8">
+      <button class="btn btn-ghost hover:bg-white/10 rounded-sm text-gray-400" (click)="closeModal()">CANCEL_OP</button>
       
-      <button class="btn btn-primary px-8" (click)="saveProgrammer()">
-        {{ isEditing ? 'Actualizar Cambios' : 'Guardar Nuevo' }}
+      <button class="btn border-0 px-8 rounded-sm text-white font-bold tracking-wider hover:shadow-[0_0_15px_#FF003C]"
+              style="background-color: #FF003C;" 
+              (click)="saveProgrammer()">
+        {{ isEditing ? 'UPDATE_DATABASE' : 'EXECUTE_SAVE' }}
       </button>
     </div>
 
   </div>
-  
-  <form method="dialog" class="modal-backdrop">
-    <button (click)="closeModal()">close</button>
-  </form>
+  <form method="dialog" class="modal-backdrop bg-black/90"><button (click)="closeModal()">close</button></form>
 </div>
 
-<div class="modal modal-bottom sm:modal-middle" [class.modal-open]="isScheduleModalOpen">
-  <div class="modal-box bg-base-100 border border-base-300">
+<div class="modal modal-bottom sm:modal-middle backdrop-blur-sm" [class.modal-open]="isScheduleModalOpen">
+  <div class="modal-box bg-[#111] border border-gray-700 rounded-sm shadow-[0_0_30px_rgba(255,255,255,0.05)]">
     
-    <h3 class="font-bold text-lg text-warning flex items-center gap-2 mb-4">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-      Horarios de: <span class="text-base-content">{{ currentProgrammerName }}</span>
+    <h3 class="font-bold text-lg text-white flex items-center gap-2 mb-4 cyber-font">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-[#FF003C]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+      TIME_SLOTS: <span class="text-gray-400">{{ currentProgrammerName }}</span>
     </h3>
 
-    <div class="bg-base-200 p-4 rounded-box mb-4">
+    <div class="bg-[#0a0a0a] border border-gray-800 p-4 mb-4">
       <div class="grid grid-cols-3 gap-2 items-end">
-        
         <div class="form-control w-full">
-          <label class="label"><span class="label-text text-xs">Día</span></label>
-          <select [(ngModel)]="newSchedule.day" class="select select-bordered select-sm w-full">
+          <label class="label pl-0 py-1"><span class="label-text text-[10px] text-gray-500">DAY</span></label>
+          <select [(ngModel)]="newSchedule.day" class="select select-bordered select-sm w-full bg-[#161616] text-white rounded-sm border-gray-700 focus:border-[#FF003C]">
             <option *ngFor="let day of daysOfWeek">{{ day }}</option>
           </select>
         </div>
-
         <div class="form-control w-full">
-          <label class="label"><span class="label-text text-xs">Desde</span></label>
-          <input type="time" [(ngModel)]="newSchedule.start" class="input input-bordered input-sm w-full" />
+          <label class="label pl-0 py-1"><span class="label-text text-[10px] text-gray-500">START</span></label>
+          <input type="time" [(ngModel)]="newSchedule.start" class="input input-bordered input-sm w-full bg-[#161616] text-white rounded-sm border-gray-700 focus:border-[#FF003C]" />
         </div>
-
         <div class="form-control w-full">
-          <label class="label"><span class="label-text text-xs">Hasta</span></label>
-          <input type="time" [(ngModel)]="newSchedule.end" class="input input-bordered input-sm w-full" />
+          <label class="label pl-0 py-1"><span class="label-text text-[10px] text-gray-500">END</span></label>
+          <input type="time" [(ngModel)]="newSchedule.end" class="input input-bordered input-sm w-full bg-[#161616] text-white rounded-sm border-gray-700 focus:border-[#FF003C]" />
         </div>
-
       </div>
-      <button class="btn btn-warning btn-sm btn-block mt-3" (click)="addSchedule()">
-        + Agregar Franja Horaria
+      <button class="btn btn-sm btn-block mt-3 rounded-sm font-bold text-white border-0 bg-gray-700 hover:bg-[#FF003C] hover:text-white transition-colors" (click)="addSchedule()">
+        + ADD VECTOR
       </button>
     </div>
 
-    <div class="overflow-y-auto max-h-48 border border-base-300 rounded-lg">
-      <table class="table table-zebra table-xs w-full">
+    <div class="overflow-y-auto max-h-48 border border-gray-800 bg-[#0a0a0a]">
+      <table class="table table-xs w-full font-mono text-gray-400">
         <thead>
-          <tr>
-            <th>Día</th>
-            <th>Inicio</th>
-            <th>Fin</th>
-            <th></th>
+          <tr class="border-b border-gray-800 text-gray-600">
+            <th>DAY</th> <th>START</th> <th>END</th> <th></th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let sch of tempSchedules; let i = index">
-            <td class="font-bold">{{ sch.day }}</td>
+          <tr *ngFor="let sch of tempSchedules; let i = index" class="border-b border-gray-900 hover:bg-white/5">
+            <td class="font-bold text-white">{{ sch.day }}</td>
             <td>{{ sch.start }}</td>
             <td>{{ sch.end }}</td>
             <td class="text-right">
-              <button class="btn btn-ghost btn-xs text-error" (click)="removeSchedule(i)">✕</button>
+              <button class="btn btn-ghost btn-xs text-red-500 hover:bg-transparent rounded-none" (click)="removeSchedule(i)">[X]</button>
             </td>
           </tr>
           <tr *ngIf="tempSchedules.length === 0">
-            <td colspan="4" class="text-center py-4 opacity-50">No hay horarios registrados.</td>
+            <td colspan="4" class="text-center py-4 opacity-30 text-xs">NO_DATA_AVAILABLE</td>
           </tr>
         </tbody>
       </table>
     </div>
 
     <div class="modal-action mt-6">
-      <button class="btn btn-ghost" (click)="closeScheduleModal()">Cancelar</button>
-      <button class="btn btn-warning" (click)="saveSchedules()">Guardar Horarios</button>
+      <button class="btn btn-ghost rounded-sm text-gray-500 hover:text-white" (click)="closeScheduleModal()">DISCARD</button>
+      <button class="btn rounded-sm text-white font-bold border-0 bg-[#FF003C] hover:bg-[#FF003C]/80" (click)="saveSchedules()">COMMIT CHANGES</button>
     </div>
 
   </div>
-  <form method="dialog" class="modal-backdrop">
-    <button (click)="closeScheduleModal()">close</button>
-  </form>
+  <form method="dialog" class="modal-backdrop bg-black/90"><button (click)="closeScheduleModal()">close</button></form>
 </div>

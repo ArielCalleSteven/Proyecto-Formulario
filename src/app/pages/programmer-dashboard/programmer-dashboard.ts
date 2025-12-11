@@ -25,7 +25,6 @@ export class ProgrammerDashboardComponent implements OnInit {
   myProfile: any = null;
   isLoading: boolean = true;
   
-  // Modales de Edición
   isModalOpen: boolean = false;
   isEditingProject: boolean = false;
   currentProjectIndex: number | null = null;

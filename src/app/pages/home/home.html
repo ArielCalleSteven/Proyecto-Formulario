@@ -1,88 +1,112 @@
-<div class="min-h-screen bg-base-200 font-sans pb-10">
+<div class="min-h-screen bg-[#050505] font-sans pb-20 relative overflow-hidden flex flex-col">
   
-  <div class="navbar bg-base-100 shadow-sm px-4 sticky top-0 z-50">
+  <div class="absolute inset-0 opacity-10 pointer-events-none" 
+       style="background-image: linear-gradient(#333 1px, transparent 1px), linear-gradient(90deg, #333 1px, transparent 1px); background-size: 40px 40px;">
+  </div>
+
+  <div class="navbar bg-[#050505]/90 backdrop-blur-md border-b border-gray-800 sticky top-0 z-50 px-4 md:px-8">
     <div class="flex-1">
-      <a class="btn btn-ghost text-xl normal-case gap-2">
-        <span class="text-3xl">🎓</span>
-        <span class="font-bold text-primary">Plataforma</span> Estudiantil
+      <a class="btn btn-ghost p-0 hover:bg-transparent text-xl normal-case gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-[#FF003C]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+        <div class="flex flex-col items-start leading-none">
+          <span class="font-black tracking-widest text-white text-lg font-mono">PLATAFORMA</span>
+          <span class="text-[10px] text-gray-500 tracking-[0.3em]">Home_v2.077</span>
+        </div>
       </a>
     </div>
-    <div class="flex-none gap-2">
-      <div class="hidden md:block text-xs opacity-60 mr-2">
+    <div class="flex-none gap-4">
+      <div class="hidden md:block text-xs font-mono text-gray-500 text-right">
         {{ currentUserEmail }}
       </div>
 
-      <button class="btn btn-ghost btn-sm" (click)="openMyAppointments()">
-        Mis Citas
-        <div class="badge badge-xs badge-primary" *ngIf="myAppointments.length">{{ myAppointments.length }}</div>
+      <button class="btn btn-sm btn-outline border-gray-700 text-[#FF003C] hover:bg-[#FF003C] hover:border-[#FF003C] hover:text-white rounded-sm font-mono" (click)="openMyAppointments()">
+        MIS CITAS
+        <span class="badge badge-xs bg-white text-black border-0 rounded-sm font-bold" *ngIf="myAppointments.length">{{ myAppointments.length }}</span>
       </button>
       
-      <button class="btn btn-error btn-sm text-white" (click)="logout()" title="Cerrar Sesión">
-        Salir
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+      <button class="btn btn-sm btn-square btn-ghost text-gray-400 hover:text-white" (click)="logout()" title="Salir">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
       </button>
     </div>
   </div>
   
-  <div class="bg-primary text-primary-content py-16 mb-8 shadow-lg">
-    <div class="container mx-auto px-4 text-center">
-      <h1 class="text-4xl md:text-5xl font-bold mb-4">Encuentra a tu Mentor Ideal 🚀</h1>
-      <p class="text-lg opacity-90 max-w-2xl mx-auto">
-        Reserva asesorías personalizadas con programadores expertos. 
-        Revisa sus portafolios y agenda una cita en segundos.
-      </p>
+  <div class="relative pt-20 pb-12 px-4 text-center z-10">
+    <h1 class="text-5xl md:text-7xl font-black mb-4 tracking-tighter" style="font-family: 'Orbitron', sans-serif;">
+      <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#FF003C] to-purple-600">ENCUENTRA</span>
+      <span class="text-white"> TU MENTOR </span>
+      <span class="text-yellow-400 italic">IDEAL</span>
+    </h1>
+    
+    <div class="flex flex-col items-center gap-1 text-xs md:text-sm font-mono text-gray-500 mt-6 border-l-2 border-yellow-400 pl-4 inline-block mx-auto text-left">
+      <p>// SISTEMA ACTIVO: Reserva asesorías personalizadas con netrunners expertos.</p>
+      <p>// ESTADO: Conectando a la red neural...</p>
     </div>
   </div>
 
-  <div class="container mx-auto px-4">
+  <div class="container mx-auto px-4 max-w-7xl relative z-10">
 
-    <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
+    <div class="bg-[#111] border border-gray-800 p-2 mb-12 flex flex-col md:flex-row justify-between items-center gap-4 rounded-sm shadow-2xl">
       
-      <div class="tabs tabs-boxed bg-base-100 p-1 shadow-sm">
-        <a *ngFor="let spec of specialties" 
-           class="tab" 
-           [class.tab-active]="selectedSpecialty === spec"
+      <div class="flex flex-wrap justify-center gap-1">
+        <button *ngFor="let spec of specialties" 
+           class="btn btn-sm rounded-sm border-0 font-mono tracking-wide text-xs" 
+           [ngClass]="selectedSpecialty === spec ? 'bg-[#FF003C] text-white font-bold' : 'bg-transparent text-gray-500 hover:text-white hover:bg-white/5'"
            (click)="selectedSpecialty = spec; applyFilters()">
-           {{ spec }}
-        </a>
+           {{ spec === 'All' ? 'ALL' : spec | uppercase }}
+        </button>
       </div>
 
-      <div class="form-control w-full md:w-auto">
-        <div class="input-group">
-          <input type="text" placeholder="Buscar por nombre..." class="input input-bordered w-full md:w-64" [(ngModel)]="searchTerm" (input)="applyFilters()" />
-          <button class="btn btn-square btn-ghost">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-          </button>
-        </div>
+      <div class="relative w-full md:w-80">
+        <input type="text" placeholder="Buscar por nombre..." class="input input-sm w-full bg-[#050505] border-gray-700 text-white rounded-sm focus:outline-none focus:border-[#FF003C] placeholder-gray-600 font-mono" [(ngModel)]="searchTerm" (input)="applyFilters()" />
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 absolute right-3 top-2 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
       </div>
     </div>
 
     <div *ngIf="isLoading" class="flex justify-center py-20">
-      <span class="loading loading-dots loading-lg text-primary"></span>
+      <span class="loading loading-bars loading-lg text-[#FF003C]"></span>
     </div>
 
     <div *ngIf="!isLoading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       
-      <div *ngFor="let p of filteredProgrammers" class="card bg-base-100 shadow-xl hover:shadow-2xl transition-all border border-base-200">
-        <div class="card-body items-center text-center">
+      <div *ngFor="let p of filteredProgrammers" class="card bg-[#0a0a0a] shadow-xl hover:shadow-[0_0_30px_rgba(255,0,60,0.15)] transition-all duration-300 border border-gray-800 hover:border-[#FF003C] rounded-sm group">
+        
+        <div class="card-body items-center text-center p-0 pt-8 pb-6">
           
-          <div class="avatar mb-2">
-            <div class="w-24 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
-              <img [src]="p.photoUrl || 'https://ui-avatars.com/api/?name=' + p.name" />
+          <div class="avatar mb-3">
+            <div class="w-24 rounded-full p-1 border-2 border-dashed group-hover:border-solid transition-all"
+                 [ngClass]="{
+                   'border-green-400': p.specialty.includes('Frontend'),
+                   'border-purple-500': p.specialty.includes('Backend'),
+                   'border-yellow-400': p.specialty.includes('Full'),
+                   'border-cyan-400': p.specialty.includes('DevOps')
+                 }">
+              <img [src]="p.photoUrl || 'https://ui-avatars.com/api/?background=111&color=fff&name=' + p.name" class="rounded-full" />
             </div>
           </div>
 
-          <h2 class="card-title text-2xl">{{ p.name }}</h2>
-          <div class="badge badge-secondary badge-outline font-bold mb-2">{{ p.specialty }}</div>
-          <p class="text-sm opacity-70 line-clamp-2 mb-4 h-10">{{ p.description || 'Sin descripción disponible.' }}</p>
+          <h2 class="card-title text-xl text-white font-bold tracking-wide">{{ p.name }}</h2>
+          <div class="badge badge-outline rounded-sm font-mono text-[10px] uppercase tracking-widest px-2 py-2 mt-1 mb-4"
+               [ngClass]="{
+                 'text-green-400 border-green-400 bg-green-400/10': p.specialty.includes('Frontend'),
+                 'text-purple-400 border-purple-400 bg-purple-400/10': p.specialty.includes('Backend'),
+                 'text-yellow-400 border-yellow-400 bg-yellow-400/10': p.specialty.includes('Full'),
+                 'text-cyan-400 border-cyan-400 bg-cyan-400/10': p.specialty.includes('DevOps')
+               }">
+            {{ p.specialty }}
+          </div>
 
-          <div class="card-actions w-full justify-center flex-col gap-2">
-            <button [routerLink]="['/portfolio', p.id]" class="btn btn-outline btn-sm w-full">
-              Ver Portafolio
+          <p class="text-xs text-gray-500 line-clamp-2 px-6 h-8 mb-6 font-mono">
+            {{ p.description || '// Experto disponible para conexión.' }}
+          </p>
+
+          <div class="w-full px-6 flex flex-col gap-3 mt-auto">
+            <button [routerLink]="['/portfolio', p.id]" class="btn btn-sm btn-outline w-full rounded-sm border-gray-700 text-gray-400 hover:text-white hover:border-white font-mono text-xs uppercase tracking-widest">
+              VER PORTAFOLIO
             </button>
             
-            <button class="btn btn-primary btn-sm w-full text-white shadow-lg shadow-primary/30" (click)="openBookingModal(p)">
-              📅 Agendar Asesoría
+            <button class="btn btn-sm w-full rounded-sm border-0 text-white font-bold tracking-widest shadow-lg bg-[#FF003C] hover:bg-[#d10030] hover:shadow-[0_0_15px_#FF003C]" (click)="openBookingModal(p)">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+              AGENDAR ASESORÍA
             </button>
           </div>
 
@@ -91,109 +115,116 @@
 
     </div>
 
-    <div *ngIf="!isLoading && filteredProgrammers.length === 0" class="text-center py-20 opacity-50">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-      <p>No encontramos programadores con esa búsqueda.</p>
+    <div *ngIf="!isLoading && filteredProgrammers.length === 0" class="text-center py-20 opacity-50 font-mono text-gray-500">
+      >> SYSTEM_MESSAGE: NO_RESULTS_FOUND
     </div>
 
   </div>
 </div>
 
-<div class="modal modal-bottom sm:modal-middle" [class.modal-open]="isModalOpen">
-  <div class="modal-box border border-primary/20">
-    <h3 class="font-bold text-xl text-primary mb-1">Agendar Asesoría</h3>
-    <p class="text-sm opacity-70 mb-4" *ngIf="selectedProgrammer">
-      Con: <span class="font-bold">{{ selectedProgrammer.name }}</span>
+<div class="modal modal-bottom sm:modal-middle backdrop-blur-sm" [class.modal-open]="isModalOpen">
+  <div class="modal-box bg-[#111] border border-gray-700 shadow-2xl rounded-sm">
+    <h3 class="font-bold text-xl text-white mb-1">Agendar Asesoría</h3>
+    <p class="text-xs text-gray-500 font-mono mb-4" *ngIf="selectedProgrammer">
+      TARGET: <span class="text-[#FF003C] font-bold">{{ selectedProgrammer.name }}</span>
     </p>
-    <div class="divider my-0"></div>
+    
     <div class="flex flex-col gap-4 mt-4">
-      <div class="alert alert-info bg-opacity-10 text-xs py-2">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+      <div class="alert bg-[#0a0a0a] border border-gray-800 text-xs py-3 rounded-sm font-mono text-gray-400">
         <div>
-          <span class="font-bold">Horarios Disponibles:</span>
-          <ul class="list-disc list-inside mt-1" *ngIf="selectedProgrammer?.availability?.length > 0">
-            <li *ngFor="let sch of selectedProgrammer.availability">
-              {{ sch.day }}: {{ sch.start }} - {{ sch.end }}
+          <span class="font-bold text-white block mb-1">HORARIOS DISPONIBLES:</span>
+          <ul class="list-none ml-0" *ngIf="selectedProgrammer?.availability?.length > 0">
+            <li *ngFor="let sch of selectedProgrammer.availability" class="flex gap-2">
+              <span class="text-[#FF003C]">></span> {{ sch.day }}: {{ sch.start }} - {{ sch.end }}
             </li>
           </ul>
-          <span *ngIf="!selectedProgrammer?.availability?.length">
-            Este programador no ha especificado horarios. Coordina por comentario.
+          <span *ngIf="!selectedProgrammer?.availability?.length" class="text-gray-600">
+            // No data found. Coordinar por mensaje.
           </span>
         </div>
       </div>
       <div class="grid grid-cols-2 gap-3">
-        <div class="form-control"><label class="label"><span class="label-text font-bold">Fecha</span></label><input type="date" [(ngModel)]="appointment.date" [min]="minDate" class="input input-bordered w-full" /></div>
-        <div class="form-control"><label class="label"><span class="label-text font-bold">Hora</span></label><input type="time" [(ngModel)]="appointment.time" class="input input-bordered w-full" /></div>
+        <div class="form-control">
+          <label class="label pl-0 pt-0 text-gray-500 text-[10px] font-bold uppercase">Fecha</label>
+          <input type="date" [(ngModel)]="appointment.date" [min]="minDate" class="input input-bordered bg-[#161616] border-gray-700 text-white rounded-sm w-full focus:border-[#FF003C] focus:outline-none" />
+        </div>
+        <div class="form-control">
+          <label class="label pl-0 pt-0 text-gray-500 text-[10px] font-bold uppercase">Hora</label>
+          <input type="time" [(ngModel)]="appointment.time" class="input input-bordered bg-[#161616] border-gray-700 text-white rounded-sm w-full focus:border-[#FF003C] focus:outline-none" />
+        </div>
       </div>
-      <div class="form-control"><label class="label"><span class="label-text font-bold">Motivo de la Asesoría (Opcional)</span></label><textarea [(ngModel)]="appointment.comment" class="textarea textarea-bordered h-24" placeholder="Hola, necesito ayuda con mi proyecto de Angular..."></textarea></div>
+      <div class="form-control">
+        <label class="label pl-0 pt-0 text-gray-500 text-[10px] font-bold uppercase">Motivo (Opcional)</label>
+        <textarea [(ngModel)]="appointment.comment" class="textarea textarea-bordered bg-[#161616] border-gray-700 text-white rounded-sm h-24 focus:border-[#FF003C] focus:outline-none" placeholder="Describe tu objetivo..."></textarea>
+      </div>
     </div>
     <div class="modal-action">
-      <button class="btn btn-ghost" (click)="closeModal()">Cancelar</button>
-      <button class="btn btn-primary px-8" (click)="saveAppointment()">Confirmar Cita</button>
+      <button class="btn btn-ghost text-gray-500 hover:text-white rounded-sm" (click)="closeModal()">Cancelar</button>
+      <button class="btn bg-[#FF003C] border-0 text-white hover:bg-[#d10030] rounded-sm px-8" (click)="saveAppointment()">Confirmar Cita</button>
     </div>
   </div>
-  <form method="dialog" class="modal-backdrop"><button (click)="closeModal()">close</button></form>
+  <form method="dialog" class="modal-backdrop bg-black/90"><button (click)="closeModal()">close</button></form>
 </div>
 
-<div class="modal modal-bottom sm:modal-middle" [class.modal-open]="isMyAppointmentsModalOpen">
-  <div class="modal-box">
-    <h3 class="font-bold text-lg mb-4">📬 Mis Solicitudes de Asesoría</h3>
-    <div *ngIf="myAppointments.length === 0" class="text-center opacity-50 py-4">No has solicitado ninguna cita aún.</div>
+<div class="modal modal-bottom sm:modal-middle backdrop-blur-sm" [class.modal-open]="isMyAppointmentsModalOpen">
+  <div class="modal-box bg-[#111] border border-gray-700 text-white rounded-sm">
+    <h3 class="font-bold text-lg mb-4 text-[#FF003C]">📬 Mis Solicitudes</h3>
+    <div *ngIf="myAppointments.length === 0" class="text-center opacity-50 py-4 font-mono text-sm text-gray-500">// NO_DATA_FOUND</div>
     
     <div class="flex flex-col gap-3">
-      <div *ngFor="let app of myAppointments" class="alert shadow-sm border"
+      <div *ngFor="let app of myAppointments" class="alert bg-[#0a0a0a] border border-gray-800 rounded-sm"
            [ngClass]="{
-             'alert-warning': app.status === 'Pendiente',
-             'alert-success': app.status === 'Aprobada',
-             'alert-error': app.status === 'Rechazada'
+             'border-l-4 border-l-yellow-500': app.status === 'Pendiente',
+             'border-l-4 border-l-green-500': app.status === 'Aprobada',
+             'border-l-4 border-l-red-500': app.status === 'Rechazada'
            }">
         
-        <svg *ngIf="app.status === 'Aprobada'" xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-        <svg *ngIf="app.status === 'Rechazada'" xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-        <svg *ngIf="app.status === 'Pendiente'" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-
         <div class="w-full">
           <div class="flex justify-between items-start">
             <div>
-              <h3 class="font-bold text-sm">{{ app.programmerName }}</h3>
-              <div class="text-xs">{{ app.date }} - {{ app.time }}</div>
+              <h3 class="font-bold text-sm text-white">{{ app.programmerName }}</h3>
+              <div class="text-xs text-gray-500 font-mono">{{ app.date }} // {{ app.time }}</div>
             </div>
             
             <div class="flex gap-1">
-              <button class="btn btn-xs btn-circle btn-ghost text-success" title="Enviar WhatsApp" (click)="notifyProgrammer(app, 'whatsapp')">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592z"/></svg>
+              <button class="btn btn-xs btn-square bg-[#25D366] border-0 text-white hover:bg-[#1da851] rounded-sm" title="WhatsApp" (click)="notifyProgrammer(app, 'whatsapp')">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592z"/></svg>
               </button>
-              <button class="btn btn-xs btn-circle btn-ghost" title="Enviar Correo" (click)="notifyProgrammer(app, 'email')">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4Zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1H2Zm13 2.383-4.708 2.825L15 11.105V5.383Zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741ZM1 11.105l4.708-2.897L1 5.383v5.722Z"/></svg>
+              <button class="btn btn-xs btn-square bg-white border-0 text-black hover:bg-gray-200 rounded-sm" title="Correo" (click)="notifyProgrammer(app, 'email')">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4Zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1H2Zm13 2.383-4.708 2.825L15 11.105V5.383Zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741ZM1 11.105l4.708-2.897L1 5.383v5.722Z"/></svg>
               </button>
             </div>
           </div>
           
-          <div *ngIf="app.programmerResponse" class="mt-2 bg-base-100/50 p-2 rounded text-xs">
-            <strong>Respuesta:</strong> {{ app.programmerResponse }}
+          <div *ngIf="app.programmerResponse" class="mt-2 bg-[#161616] p-2 rounded-sm text-xs text-gray-400 border border-gray-700">
+            <span class="text-[#FF003C]">></span> {{ app.programmerResponse }}
           </div>
         </div>
       </div>
     </div>
 
-    <div class="modal-action"><button class="btn" (click)="closeMyAppointments()">Cerrar</button></div>
+    <div class="modal-action"><button class="btn btn-ghost text-gray-500 rounded-sm" (click)="closeMyAppointments()">Cerrar</button></div>
   </div>
-  <form method="dialog" class="modal-backdrop"><button (click)="closeMyAppointments()">close</button></form>
+  <form method="dialog" class="modal-backdrop bg-black/90"><button (click)="closeMyAppointments()">close</button></form>
 </div>
 
 <div class="modal modal-bottom sm:modal-middle" [class.modal-open]="isAlertOpen">
-  <div class="modal-box text-center border border-base-300 shadow-2xl">
-    <div class="mx-auto mb-4 w-16 h-16 flex items-center justify-center rounded-full bg-opacity-20"
-         [ngClass]="{ 'bg-success text-success': alertType === 'success', 'bg-error text-error': alertType === 'error', 'bg-warning text-warning': alertType === 'warning' }">
-       <svg *ngIf="alertType === 'success'" xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
-       <svg *ngIf="alertType === 'error'" xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-       <svg *ngIf="alertType === 'warning'" xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+  <div class="modal-box bg-[#111] border border-gray-700 text-center shadow-2xl rounded-sm">
+    <div class="mx-auto mb-4 w-16 h-16 flex items-center justify-center rounded-full bg-opacity-10"
+         [ngClass]="{ 'bg-green-500 text-green-500': alertType === 'success', 'bg-red-500 text-red-500': alertType === 'error', 'bg-yellow-500 text-yellow-500': alertType === 'warning' }">
+       <svg *ngIf="alertType === 'success'" xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+       <svg *ngIf="alertType === 'error'" xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+       <svg *ngIf="alertType === 'warning'" xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
     </div>
-    <h3 class="font-bold text-2xl" [ngClass]="{ 'text-success': alertType === 'success', 'text-error': alertType === 'error', 'text-warning': alertType === 'warning' }">{{ alertTitle }}</h3>
-    <p class="py-4 text-lg opacity-80 whitespace-pre-line">{{ alertMessage }}</p>
+    <h3 class="font-bold text-xl text-white mb-2">{{ alertTitle }}</h3>
+    <p class="text-gray-400 text-sm mb-6 whitespace-pre-line">{{ alertMessage }}</p>
     <div class="modal-action justify-center">
-      <button class="btn px-8" [ngClass]="{ 'btn-success text-white': alertType === 'success', 'btn-error text-white': alertType === 'error', 'btn-warning text-white': alertType === 'warning' }" (click)="closeCustomAlert()">{{ alertType === 'success' ? 'Continuar' : 'Entendido' }}</button>
+      <button class="btn btn-wide rounded-sm border-0 text-white font-bold" 
+              [ngClass]="{ 'bg-green-600 hover:bg-green-700': alertType === 'success', 'bg-red-600 hover:bg-red-700': alertType === 'error', 'bg-yellow-600 hover:bg-yellow-700 text-black': alertType === 'warning' }" 
+              (click)="closeCustomAlert()">
+        {{ alertType === 'success' ? 'CONTINUAR' : 'ENTENDIDO' }}
+      </button>
     </div>
   </div>
-  <form method="dialog" class="modal-backdrop"><button (click)="closeCustomAlert()">close</button></form>
+  <form method="dialog" class="modal-backdrop bg-black/90"><button (click)="closeCustomAlert()">close</button></form>
 </div>

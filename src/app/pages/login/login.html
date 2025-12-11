@@ -1,126 +1,99 @@
-<div class="hero min-h-screen bg-base-200 font-sans">
-  <div class="hero-content flex-col lg:flex-row-reverse">
+<div class="min-h-screen bg-[#050505] flex items-center justify-center font-mono relative overflow-hidden p-4">
+  
+  <div class="absolute inset-0 opacity-10" 
+       style="background-image: linear-gradient(#333 1px, transparent 1px), linear-gradient(90deg, #333 1px, transparent 1px); background-size: 50px 50px;">
+  </div>
+
+  <div class="card w-full max-w-sm bg-[#0a0a0a] border border-gray-800 shadow-[0_0_40px_rgba(255,0,60,0.15)] relative z-10">
     
-    <div class="text-center lg:text-left ml-0 lg:ml-10">
-      <h1 class="text-5xl font-bold text-primary">¡Bienvenido! 👋</h1>
-      <p class="py-6 max-w-md">
-        Ingresa a la Plataforma de Asesorías Estudiantiles. Encuentra mentores, agenda citas y mejora tus habilidades de programación.
-      </p>
-    </div>
+    <div class="card-body p-6 md:p-8"> <div class="text-center mb-6">
+        <h1 class="text-3xl md:text-4xl font-black text-white tracking-widest mb-2" style="font-family: 'Orbitron', sans-serif;">
+          LOGIN
+        </h1>
+        <p class="text-xs text-gray-500 tracking-[0.3em] uppercase">
+          Plataforma Estudiantil
+        </p>
+      </div>
 
-    <div class="card shrink-0 w-full max-w-sm shadow-2xl bg-base-100">
-      <div class="card-body">
+      <form (ngSubmit)="onSubmit()" class="flex flex-col gap-5">
         
-        <h2 class="card-title justify-center mb-4 text-2xl">
-          {{ isRegistering ? 'Crear Cuenta' : 'Iniciar Sesión' }}
-        </h2>
-
-        <form (ngSubmit)="onSubmit()">
-          
-          <div class="form-control">
-            <label class="label">
-              <span class="label-text">Correo Electrónico</span>
-            </label>
-            <input type="email" 
-                   [(ngModel)]="email" 
-                   name="email" 
-                   placeholder="estudiante@ejemplo.com" 
-                   class="input input-bordered" 
-                   required />
-          </div>
-
-          <div class="form-control">
-            <label class="label">
-              <span class="label-text">Contraseña</span>
-            </label>
-            <input type="password" 
-                   [(ngModel)]="password" 
-                   name="password" 
-                   placeholder="********" 
-                   class="input input-bordered" 
-                   required />
-            <label class="label" *ngIf="!isRegistering">
-              <a href="#" class="label-text-alt link link-hover">¿Olvidaste tu contraseña?</a>
-            </label>
-          </div>
-
-          <div class="form-control mt-6">
-            <button type="submit" class="btn btn-primary text-white" [disabled]="isLoading">
-              <span *ngIf="isLoading" class="loading loading-spinner"></span>
-              {{ isRegistering ? 'Registrarse' : 'Ingresar' }}
-            </button>
-          </div>
-
-        </form>
-
-        <div class="divider">O</div>
-
-        <button type="button" class="btn btn-outline" (click)="loginWithGoogle()" [disabled]="isLoading">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 48 48">
-            <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"></path>
-            <path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"></path>
-            <path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"></path>
-            <path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"></path>
-          </svg>
-          Google
-        </button>
-
-        <div class="text-center mt-4 text-sm">
-          <p *ngIf="!isRegistering">
-            ¿No tienes cuenta? 
-            <a class="link link-primary font-bold cursor-pointer" (click)="isRegistering = true">Regístrate aquí</a>
-          </p>
-          <p *ngIf="isRegistering">
-            ¿Ya tienes cuenta? 
-            <a class="link link-primary font-bold cursor-pointer" (click)="isRegistering = false">Inicia Sesión</a>
-          </p>
+        <div class="form-control">
+          <label class="label pl-0 pt-0">
+            <span class="label-text text-gray-400 text-xs font-bold tracking-wider">CORREO ID</span>
+          </label>
+          <input type="email" 
+                 [(ngModel)]="email" 
+                 name="email" 
+                 placeholder="estudiante@ups.edu.ec" 
+                 class="input input-bordered w-full bg-[#161616] border-gray-700 text-white placeholder-gray-600 focus:border-accent focus:outline-none rounded-sm h-12" 
+                 required />
         </div>
 
+        <div class="form-control">
+          <label class="label pl-0 pt-0">
+            <span class="label-text text-gray-400 text-xs font-bold tracking-wider">CONTRASEÑA</span>
+          </label>
+          <input type="password" 
+                 [(ngModel)]="password" 
+                 name="password" 
+                 placeholder="••••••••" 
+                 class="input input-bordered w-full bg-[#161616] border-gray-700 text-white placeholder-gray-600 focus:border-accent focus:outline-none rounded-sm h-12" 
+                 required />
+          
+          <label class="label pb-0" *ngIf="!isRegistering">
+            <a href="#" class="label-text-alt link link-hover text-gray-500 hover:text-accent ml-auto mt-1">¿Olvidaste tu contraseña?</a>
+          </label>
+        </div>
+
+        <button type="submit" class="btn btn-block border-0 rounded-sm text-white font-bold tracking-widest mt-2 h-12 shadow-lg hover:shadow-accent/40 transition-all"
+                style="background-color: #FF003C;"
+                [disabled]="isLoading">
+          <span *ngIf="isLoading" class="loading loading-spinner loading-sm"></span>
+          {{ isRegistering ? 'CREAR CUENTA' : 'INGRESAR' }}
+        </button>
+
+      </form>
+
+      <div class="divider text-gray-700 text-xs my-6">O</div>
+
+      <button type="button" class="btn btn-outline btn-block rounded-sm border-gray-700 text-gray-300 hover:bg-white hover:text-black hover:border-white transition-all h-12 normal-case font-normal" (click)="loginWithGoogle()" [disabled]="isLoading">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 48 48">
+          <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"></path>
+          <path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"></path>
+          <path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"></path>
+          <path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"></path>
+        </svg>
+        Continuar con Google
+      </button>
+
+      <div class="text-center mt-6 text-sm">
+        <p *ngIf="!isRegistering" class="text-gray-500">
+          ¿No tienes cuenta? 
+          <a class="link text-accent font-bold no-underline hover:text-white transition-colors" (click)="isRegistering = true">Regístrate aquí</a>
+        </p>
+        <p *ngIf="isRegistering" class="text-gray-500">
+          ¿Ya tienes cuenta? 
+          <a class="link text-accent font-bold no-underline hover:text-white transition-colors" (click)="isRegistering = false">Inicia Sesión</a>
+        </p>
       </div>
+
     </div>
   </div>
 </div>
 
 <div class="modal modal-bottom sm:modal-middle" [class.modal-open]="isAlertOpen">
-  <div class="modal-box text-center border border-base-300 shadow-2xl">
-    
-    <div class="mx-auto mb-4 w-16 h-16 flex items-center justify-center rounded-full bg-opacity-20"
-         [ngClass]="{
-           'bg-success text-success': alertType === 'success',
-           'bg-error text-error': alertType === 'error',
-           'bg-warning text-warning': alertType === 'warning'
-         }">
-         
-       <svg *ngIf="alertType === 'success'" xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
-       <svg *ngIf="alertType === 'error'" xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-       <svg *ngIf="alertType === 'warning'" xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+  <div class="modal-box bg-[#111] border border-gray-700 text-center shadow-2xl rounded-sm">
+    <div class="mx-auto mb-4 w-16 h-16 flex items-center justify-center rounded-full bg-opacity-10"
+         [ngClass]="{ 'bg-success text-success': alertType === 'success', 'bg-error text-error': alertType === 'error', 'bg-warning text-warning': alertType === 'warning' }">
+       <svg *ngIf="alertType === 'success'" xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+       <svg *ngIf="alertType === 'error'" xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+       <svg *ngIf="alertType === 'warning'" xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
     </div>
-
-    <h3 class="font-bold text-2xl" 
-        [ngClass]="{
-           'text-success': alertType === 'success',
-           'text-error': alertType === 'error',
-           'text-warning': alertType === 'warning'
-        }">
-      {{ alertTitle }}
-    </h3>
-    
-    <p class="py-4 text-lg opacity-80 whitespace-pre-line">{{ alertMessage }}</p>
-
+    <h3 class="font-bold text-xl text-white mb-2">{{ alertTitle }}</h3>
+    <p class="text-gray-400 text-sm mb-6 whitespace-pre-line">{{ alertMessage }}</p>
     <div class="modal-action justify-center">
-      <button class="btn px-8" 
-              [ngClass]="{
-                 'btn-success text-white': alertType === 'success',
-                 'btn-error text-white': alertType === 'error',
-                 'btn-warning text-white': alertType === 'warning'
-              }" 
-              (click)="closeCustomAlert()">
-        {{ alertType === 'success' ? 'Continuar' : 'Entendido' }}
-      </button>
+      <button class="btn btn-wide rounded-sm border-0 text-white font-bold" [ngClass]="{ 'bg-success hover:bg-success/80': alertType === 'success', 'bg-error hover:bg-error/80': alertType === 'error', 'bg-warning hover:bg-warning/80 text-black': alertType === 'warning' }" (click)="closeCustomAlert()">{{ alertType === 'success' ? 'CONTINUAR' : 'ENTENDIDO' }}</button>
     </div>
-
   </div>
-  <form method="dialog" class="modal-backdrop">
-    <button (click)="closeCustomAlert()">close</button>
-  </form>
+  <form method="dialog" class="modal-backdrop bg-black/80"><button (click)="closeCustomAlert()">close</button></form>
 </div>

@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
-import { Firestore, collection, collectionData, addDoc, doc, updateDoc, deleteDoc, query, where, getDocs, setDoc } from '@angular/fire/firestore';
+// 👇 AGREGUÉ 'getDoc' AQUÍ QUE FALTABA
+import { Firestore, collection, collectionData, addDoc, doc, updateDoc, deleteDoc, query, where, getDocs, setDoc, getDoc } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 
 export interface Programmer {
@@ -23,6 +24,11 @@ export class UserService {
   getProgrammers(): Observable<Programmer[]> {
     const ref = collection(this.firestore, this.collectionName);
     return collectionData(ref, { idField: 'id' }) as Observable<Programmer[]>;
+  }
+
+  getProgrammerById(id: string) {
+    const docRef = doc(this.firestore, this.collectionName, id);
+    return getDoc(docRef);
   }
 
   addProgrammer(programmer: Programmer) {
