@@ -1,59 +1,244 @@
-# GestionPortafolio
+# Net_Academy: Sistema de Gestión de Portafolios y Asesorías Académicas
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.3.6.
+![Angular](https://img.shields.io/badge/Angular-17%2B-DD0031?style=for-the-badge&logo=angular&logoColor=white)
+![Firebase](https://img.shields.io/badge/Firebase-Serverless-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)
+![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-Cyberpunk_Theme-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)
 
-## Development server
+> **Proyecto Integrador de Fin de Ciclo**  
+> **Asignatura:** Programación y Plataformas Web  
+> **Periodo Lectivo:** Octubre 2025 – Febrero 2026  
 
-To start a local development server, run:
+---
 
-```bash
-ng serve
+## 📑 Tabla de Contenidos
+1. [Información Institucional](#1-información-institucional)  
+2. [Resumen Ejecutivo](#2-resumen-ejecutivo)  
+3. [Objetivos del Proyecto](#3-objetivos-del-proyecto)  
+4. [Arquitectura de Software](#4-arquitectura-de-software)  
+5. [Ingeniería y Desarrollo](#5-ingeniería-y-desarrollo)  
+6. [Diseño de Interfaz (UI/UX)](#6-diseño-de-interfaz-uiux)  
+7. [Instalación y Despliegue](#7-instalación-y-despliegue)  
+8. [Conclusiones](#8-conclusiones)  
+
+---
+
+## 1. Información Institucional
+
+| **Entidad** | **Detalle** |
+| :--- | :--- |
+| **Universidad** | Universidad Politécnica Salesiana |
+| **Carrera** | Computación / Ingeniería de Software |
+| **Asignatura** | Programación y Plataformas Web |
+| **Docente** | Ing.Pablo Torres |
+| **Desarrolladores** | Juan Diego Torres & Ariel Calle |
+| **Fecha de Entrega** | Diciembre 2025 |
+
+---
+
+## 2. Resumen Ejecutivo
+
+**Net_Academy** es una plataforma web desarrollada como una **SPA (Single Page Application)** construida con **Angular 17+**. Su propósito es conectar a estudiantes que requieren asesorías académicas con programadores que desean gestionar su marca personal a través de portafolios digitales profesionales.
+
+El proyecto funciona completamente sobre una infraestructura **Serverless** proporcionada por **Firebase**, integrando autenticación segura, Firestore como base NoSQL en tiempo real y hosting para despliegue continuo. Visualmente, la aplicación adopta un estilo **Cyberpunk/Sci-Fi**, usando **TailwindCSS** para crear una experiencia moderna, llamativa y orientada al público tecnológico joven.
+
+---
+
+## 3. Objetivos del Proyecto
+
+### 🎯 Objetivo General
+Crear una plataforma web que permita gestionar portafolios multiusuario y administrar asesorías académicas, diferenciando roles y proporcionando herramientas personalizadas para cada tipo de usuario.
+
+### 🎯 Objetivos Específicos
+1. Implementar **Control de Acceso Basado en Roles (RBAC)** mediante Guards de Angular.  
+2. Desarrollar la **gestión dinámica de portafolios** con CRUD de proyectos.  
+3. Crear un **sistema de agendamiento de asesorías**, incluyendo validación de horarios y flujo de aprobación.  
+4. Desplegar el proyecto con **Firebase Hosting** para disponibilidad pública.
+
+---
+
+## 4. Arquitectura de Software
+
+La aplicación sigue una arquitectura modular moderna basada en:
+
+- **Angular 17+ Standalone Components**  
+- **Signals & inject()**  
+- **RxJS** para flujos reactivos  
+- **Firebase BaaS**  
+  - Authentication  
+  - Firestore  
+  - Hosting  
+- **TailwindCSS + DaisyUI** para un diseño visual ágil y adaptable  
+
+---
+
+## 5. Ingeniería y Desarrollo
+
+### 5.1. Módulo de Autenticación y Seguridad
+
+Se implementó un flujo de autenticación inteligente con redirección según el rol del usuario. Los *Functional Guards* protegen rutas críticas.
+
+Ejemplo de `adminGuard`:
+
+```ts
+// src/app/guards/auth.guard.ts
+export const adminGuard = () => {
+  const auth = inject(Auth);
+  const router = inject(Router);
+
+  return authState(auth).pipe(
+    take(1),
+    map(user => {
+      if (!user) {
+        router.navigate(['/login']);
+        return false;
+      }
+      if (user.email === 'a.calleduma123@gmail.com') {
+        return true;
+      }
+      router.navigate(['/home']);
+      return false;
+    })
+  );
+};
+````
+
+---
+
+### 5.2. Módulo de Administración
+
+Panel exclusivo para el Administrador, con capacidades:
+
+* Crear programadores
+* Editar información
+* Deshabilitar o eliminar perfiles
+* Filtrar por especialidad
+* Modales dinámicos
+* Integración con Firestore mediante `UserService`
+
+---
+
+### 5.3. Módulo del Programador (Command Center)
+
+Este panel representa el "cockpit" donde el programador controla todo:
+
+#### Portafolio:
+
+* CRUD de proyectos
+* Clasificación: Académicos / Laborales
+* Tecnologías, enlaces, repositorios
+
+#### Gestión de Solicitudes (Tiempo Real):
+
+* Escucha activa de la colección `appointments`
+* Aprobación / Rechazo instantáneo
+* Justificación obligatoria
+
+Ejemplo:
+
+```ts
+async respondAppointment(app: any, status: 'Aprobada' | 'Rechazada') {
+  if (!app.replyMessage) {
+      this.showAlert('⚠️ REQUERIDO', 'Debe justificar la respuesta.', 'warning');
+      return;
+  }
+  await this.advisoryService.updateAppointmentStatus(app.id, status, app.replyMessage);
+  this.showAlert('¡LISTO!', `Solicitud ${status} correctamente.`, 'success');
+}
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+---
 
-## Code scaffolding
+### 5.4. Módulo Estudiante y Navegación
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+Funcionalidades:
 
-```bash
-ng generate component component-name
+* Buscador inteligente por nombre, tecnología o especialidad
+* Visualización del portafolio de cada programador
+* Formulario de solicitud de asesoría
+* Validación de horarios disponibles
+
+---
+
+## 6. Diseño de Interfaz (UI/UX)
+
+Se desarrolló un diseño inspirado en estética **Cyberpunk**:
+
+### Paleta Principal:
+
+* **Fondo:** `#050505`
+* **Neon Red:** `#FF003C`
+* **Cyan Cyber:** `#00F3FF`
+* **Tipografía:** Orbitron & Monospace
+
+Ejemplo de botón estilizado:
+
+```html
+<button class="btn border-0 rounded-sm text-white font-bold tracking-wider
+               bg-[#FF003C] hover:bg-[#d10030] 
+               shadow-[0_0_15px_#FF003C] transition-all">
+  EXECUTE_SAVE_PROTOCOL
+</button>
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+---
+
+## 7. Instalación y Despliegue
+
+### 🔧 Requisitos
+
+* Node.js 18+
+* Angular CLI 17+
+
+### 🚀 Ejecución Local
 
 ```bash
-ng generate --help
+git clone https://github.com/diegotorres006/03-componentes.git
+cd 03-componentes
+npm install
 ```
 
-## Building
+Crear archivo:
+`src/environments/environment.ts`
 
-To build the project run:
+Ejemplo:
+
+```ts
+export const environment = {
+  firebase: {
+    apiKey: "",
+    authDomain: "",
+    projectId: "",
+    storageBucket: "",
+    messagingSenderId: "",
+    appId: ""
+  }
+};
+```
+
+Ejecutar:
 
 ```bash
-ng build
+ng serve -o
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+### 🌐 Producción
 
-## Running unit tests
+El proyecto está desplegado en Firebase Hosting.
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+**URL Pública:** 
+(https://portafolio-calle-torres-2025.web.app/admin)*
 
-```bash
-ng test
-```
+---
 
-## Running end-to-end tests
+## 8. Conclusiones
 
-For end-to-end (e2e) testing, run:
+* **Integración Exitosa:** Angular + Firebase permitió un desarrollo rápido y modular.
+* **Seguridad Robusta:** Guards y roles garantizan acceso controlado.
+* **Escalabilidad:** Standalone Components soportan crecimiento del proyecto.
+* **Experiencia Visual:** El tema Cyberpunk brinda identidad y claridad.
 
-```bash
-ng e2e
-```
+---
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+© 2025 Net_Academy Development Team
+Universidad Politécnica Salesiana – Sede Cuenca

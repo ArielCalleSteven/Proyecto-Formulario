@@ -31,12 +31,14 @@ export class ProgrammerDashboardComponent implements OnInit {
 
   appointments: any[] = [];
 
+  visibleProjects: any[] = []; 
+  currentFilter: string = 'todos'; 
+
   newProject = {
     title: '', description: '', category: 'Académico', role: 'Frontend',
     techInput: '', repo: '', demo: ''
   };
 
-  // Variables para Alerta Drácula
   isAlertOpen: boolean = false;
   alertTitle: string = '';
   alertMessage: string = '';
@@ -55,6 +57,8 @@ export class ProgrammerDashboardComponent implements OnInit {
           
           if (!this.myProfile.projects) this.myProfile.projects = [];
 
+          this.filterProjects('todos');
+
           this.loadAppointments(this.myProfile.id);
         }
       } catch (error) {
@@ -62,6 +66,21 @@ export class ProgrammerDashboardComponent implements OnInit {
       }
     }
     this.isLoading = false;
+  }
+
+  filterProjects(category: string) {
+    this.currentFilter = category;
+
+    if (!this.myProfile || !this.myProfile.projects) {
+      this.visibleProjects = [];
+      return;
+    }
+
+    if (category === 'todos') {
+      this.visibleProjects = [...this.myProfile.projects]; 
+    } else {
+      this.visibleProjects = this.myProfile.projects.filter((p: any) => p.category === category);
+    }
   }
 
   loadAppointments(programmerId: string) {
@@ -127,6 +146,9 @@ export class ProgrammerDashboardComponent implements OnInit {
       
       await this.projectService.updateUserProjects(this.myProfile.id, this.myProfile.projects);
       
+      // 👇 NUEVO: Refrescamos la vista respetando el filtro actual
+      this.filterProjects(this.currentFilter);
+
       this.closeModal();
       this.showAlert('¡ÉXITO!', 'El proyecto se ha guardado correctamente.', 'success');
 
@@ -147,8 +169,18 @@ export class ProgrammerDashboardComponent implements OnInit {
 
   async executeDeleteProject(index: number) {
     try { 
-      this.myProfile.projects.splice(index, 1); 
+      
+      const projectToDelete = this.visibleProjects[index]; 
+      
+      const realIndex = this.myProfile.projects.indexOf(projectToDelete);
+      if (realIndex > -1) {
+          this.myProfile.projects.splice(realIndex, 1);
+      }
+
       await this.projectService.updateUserProjects(this.myProfile.id, this.myProfile.projects);
+      
+      this.filterProjects(this.currentFilter);
+
       this.showAlert('ELIMINADO', 'Proyecto borrado del repositorio.', 'success');
     } catch (error) { 
       console.error(error); 
@@ -160,7 +192,11 @@ export class ProgrammerDashboardComponent implements OnInit {
   
   openEditModal(project: any, index: number) { 
     this.isEditingProject = true; 
+    
     this.currentProjectIndex = index; 
+    const realIndex = this.myProfile.projects.indexOf(project);
+    this.currentProjectIndex = realIndex;
+
     this.newProject = { 
         title: project.title, 
         description: project.description, 

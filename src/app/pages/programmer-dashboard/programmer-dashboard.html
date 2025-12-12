@@ -114,13 +114,31 @@
       </div>
 
       <div class="lg:col-span-5 flex flex-col gap-4">
-        <div class="flex justify-between items-center border-b border-gray-800 pb-2">
+        
+        <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center border-b border-gray-800 pb-2 gap-2">
           <h3 class="text-sm font-bold text-gray-400 flex items-center gap-2 tracking-[0.2em] uppercase">
             <span class="text-cyan-500">●</span> REPOSITORY
           </h3>
-          <button class="btn btn-xs border-0 bg-cyan-600 text-white hover:bg-cyan-500 rounded-sm font-bold shadow-[0_0_10px_#0891b2] tracking-wider" (click)="openModal()">
-            + NUEVO
-          </button>
+          
+          <div class="flex items-center gap-2">
+            <div class="join border border-gray-700 rounded-sm scale-90 origin-right">
+              <button class="join-item btn btn-xs border-0 rounded-none font-mono" 
+                [ngClass]="currentFilter === 'todos' ? 'bg-cyan-600 text-white' : 'bg-[#111] text-gray-500 hover:bg-gray-900'"
+                (click)="filterProjects('todos')">ALL</button>
+                
+              <button class="join-item btn btn-xs border-0 rounded-none font-mono" 
+                [ngClass]="currentFilter === 'Laboral' ? 'bg-cyan-600 text-white' : 'bg-[#111] text-gray-500 hover:bg-gray-900'"
+                (click)="filterProjects('Laboral')">WORK</button>
+                
+              <button class="join-item btn btn-xs border-0 rounded-none font-mono" 
+                [ngClass]="currentFilter === 'Académico' ? 'bg-cyan-600 text-white' : 'bg-[#111] text-gray-500 hover:bg-gray-900'"
+                (click)="filterProjects('Académico')">ACAD</button>
+            </div>
+
+            <button class="btn btn-xs border-0 bg-cyan-600 text-white hover:bg-cyan-500 rounded-sm font-bold shadow-[0_0_10px_#0891b2] tracking-wider" (click)="openModal()">
+              + NUEVO
+            </button>
+          </div>
         </div>
 
         <div *ngIf="!myProfile.projects || myProfile.projects.length === 0" class="flex-grow min-h-[200px] border border-gray-800 bg-[#080808] flex flex-col items-center justify-center relative p-8">
@@ -131,13 +149,17 @@
         </div>
 
         <div *ngIf="myProfile.projects && myProfile.projects.length > 0" class="flex flex-col gap-3">
-          <div *ngFor="let p of myProfile.projects; let i = index" class="bg-[#0a0a0a] border border-gray-700 p-4 relative group hover:border-cyan-500 transition-colors rounded-sm">
+          
+          <div *ngFor="let p of visibleProjects; let i = index" class="bg-[#0a0a0a] border border-gray-700 p-4 relative group hover:border-cyan-500 transition-colors rounded-sm">
             
             <div class="flex justify-between items-start mb-1">
               <div>
                 <h4 class="text-white font-bold text-sm tracking-wide">{{ p.title }}</h4>
                 <div class="flex gap-2 mt-1">
-                  <span class="text-[10px] border border-gray-600 px-1 text-gray-400 bg-gray-900 uppercase">{{ p.category }}</span>
+                  <span class="text-[10px] border px-1 uppercase"
+                    [ngClass]="p.category === 'Laboral' ? 'border-purple-600 text-purple-400 bg-purple-900/20' : 'border-gray-600 text-gray-400 bg-gray-900'">
+                    {{ p.category }}
+                  </span>
                   <span class="text-[10px] text-cyan-600 font-mono">{{ p.role }}</span>
                 </div>
               </div>
