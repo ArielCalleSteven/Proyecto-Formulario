@@ -146,7 +146,6 @@ export class ProgrammerDashboardComponent implements OnInit {
       
       await this.projectService.updateUserProjects(this.myProfile.id, this.myProfile.projects);
       
-      // 👇 NUEVO: Refrescamos la vista respetando el filtro actual
       this.filterProjects(this.currentFilter);
 
       this.closeModal();
@@ -215,6 +214,44 @@ export class ProgrammerDashboardComponent implements OnInit {
     this.isEditingProject = false; 
     this.currentProjectIndex = null; 
     this.newProject = { title: '', description: '', category: 'Académico', role: 'Frontend', techInput: '', repo: '', demo: '' }; 
+  }
+
+  askClearHistory() {
+    const completedApps = this.appointments.filter(a => a.status !== 'Pendiente');
+
+    if (completedApps.length === 0) {
+      this.showAlert('NADA QUE BORRAR', 'Solo se borran las solicitudes Aprobadas o Rechazadas. Las pendientes se conservan.', 'warning');
+      return;
+    }
+
+    this.showAlert(
+      '¿LIMPIAR HISTORIAL?', 
+      `Se eliminarán ${completedApps.length} solicitudes procesadas. Esta acción no se puede deshacer.`, 
+      'warning', 
+      () => this.executeClearHistory(completedApps)
+    );
+  }
+
+  async executeClearHistory(appsToDelete: any[]) {
+    try {
+      this.isLoading = true; 
+      
+      const deletePromises = appsToDelete.map(app => 
+        this.advisoryService.deleteAppointment(app.id)
+      );
+
+      await Promise.all(deletePromises);
+
+      this.loadAppointments(this.myProfile.id);
+      
+      this.isLoading = false;
+      this.showAlert('HISTORIAL LIMPIO', 'Se han eliminado las solicitudes antiguas.', 'success');
+      
+    } catch (error) {
+      console.error(error);
+      this.isLoading = false;
+      this.showAlert('ERROR', 'No se pudieron borrar algunos elementos.', 'error');
+    }
   }
 
   notifyStudent(app: any, method: 'whatsapp' | 'email') {

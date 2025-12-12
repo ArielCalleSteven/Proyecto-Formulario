@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { Firestore, collection, addDoc, query, where, collectionData, doc, updateDoc } from '@angular/fire/firestore';
+import { Firestore, collection, addDoc, query, where, collectionData, doc, updateDoc, deleteDoc } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -33,4 +33,10 @@ export class AdvisoryService {
       programmerResponse: response
     });
   }
+
+deleteAppointment(id: string) {
+  const docRef = doc(this.firestore, this.collectionName, id);
+  return deleteDoc(docRef);
+}
+
 }
