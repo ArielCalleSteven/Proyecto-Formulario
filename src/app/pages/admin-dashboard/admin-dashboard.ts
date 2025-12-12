@@ -94,7 +94,6 @@ export class AdminComponent {
     }
   }
 
-  // 👇 HORARIOS USANDO SERVICIO (Update es el mismo método) 👇
   openScheduleModal(programmer: any) {
     this.currentId = programmer.id;
     this.currentProgrammerName = programmer.name;
@@ -105,22 +104,18 @@ export class AdminComponent {
   
   closeScheduleModal() { this.isScheduleModalOpen = false; }
   
-  // 🔥 AQUÍ ESTÁ LA MAGIA CORREGIDA 🔥
   addSchedule() {
-    // 1. Validar que haya horas
     if (!this.newSchedule.start || !this.newSchedule.end) { 
         alert('⚠️ Debes ingresar hora de inicio y fin.'); 
         return; 
     }
 
-    // 2. Validar que la hora fin sea mayor a la inicio
     if (this.newSchedule.start >= this.newSchedule.end) {
         alert('⚠️ La hora de fin debe ser posterior a la de inicio.');
         return;
     }
 
-    // 3. Validar DUPLICADOS (La parte importante)
-    // Buscamos si ya existe un horario con ese mismo día
+
     const diaDuplicado = this.tempSchedules.find(s => s.day === this.newSchedule.day);
 
     if (diaDuplicado) {
@@ -128,11 +123,9 @@ export class AdminComponent {
         return;
     }
 
-    // Si pasa todas las pruebas, guardamos
     this.tempSchedules.push({ ...this.newSchedule });
     
-    // Opcional: Ordenar los días para que se vean bonitos (Lunes a Domingo)
-    // Esto es un plus visual
+
     const daysOrder = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
     this.tempSchedules.sort((a, b) => daysOrder.indexOf(a.day) - daysOrder.indexOf(b.day));
   }
