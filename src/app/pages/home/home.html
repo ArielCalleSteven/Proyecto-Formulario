@@ -210,14 +210,27 @@
             </td>
 
             <td class="py-3">
-              <div class="badge badge-sm rounded-sm font-bold border-0 uppercase tracking-widest"
-                   [ngClass]="{
-                     'bg-yellow-500/20 text-yellow-500': app.status === 'Pendiente',
-                     'bg-green-500/20 text-green-500': app.status === 'Aprobada',
-                     'bg-red-500/20 text-red-500': app.status === 'Rechazada'
-                   }">
-                {{ app.status }}
-              </div>
+              
+              <ng-container *ngIf="isAppointmentValid(app); else invalidTemplate">
+                <div class="badge badge-sm rounded-sm font-bold border-0 uppercase tracking-widest"
+                     [ngClass]="{
+                       'bg-yellow-500/20 text-yellow-500': app.status === 'Pendiente',
+                       'bg-green-500/20 text-green-500': app.status === 'Aprobada',
+                       'bg-red-500/20 text-red-500': app.status === 'Rechazada'
+                     }">
+                  {{ app.status }}
+                </div>
+              </ng-container>
+
+              <ng-template #invalidTemplate>
+                <div class="flex flex-col items-start gap-1">
+                  <div class="badge badge-sm rounded-sm font-bold border-0 uppercase tracking-widest bg-red-600/20 text-red-500 border border-red-500 animate-pulse">
+                    ⚠️ ERROR
+                  </div>
+                  <span class="text-[10px] text-red-500 font-bold tracking-wider">HORARIO ELIMINADO: Porfavor solicita otra cita</span>
+                </div>
+              </ng-template>
+
             </td>
 
             <td class="py-3 max-w-xs">
@@ -226,6 +239,10 @@
               </div>
               <div class="text-[10px] text-gray-600 truncate" title="{{ app.comment }}">
                 Yo: {{ app.comment || 'Sin comentario' }}
+              </div>
+              
+              <div *ngIf="!isAppointmentValid(app)" class="text-[10px] text-red-500 mt-1 font-bold">
+                >> ACTION_REQUIRED: RE-BOOK
               </div>
             </td>
 

@@ -73,6 +73,29 @@ export class HomeComponent implements OnInit {
     if (this.onAlertCloseCallback) this.onAlertCloseCallback();
   }
 
+  
+  isAppointmentValid(app: any): boolean {
+    const programmer = this.allProgrammers.find(p => p.id === app.programmerId);
+    
+    if (!programmer) return false;
+
+    const parts = app.date.split('-'); 
+    const dateObj = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2])); 
+    
+    const daysMap = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+    const dayName = daysMap[dateObj.getDay()];
+
+    const schedule = programmer.availability?.find((s: any) => s.day.toLowerCase() === dayName.toLowerCase());
+
+    if (!schedule) return false; 
+
+    if (app.time >= schedule.start && app.time <= schedule.end) {
+      return true; 
+    }
+
+    return false; 
+  }
+
   validateSchedule(dateString: string, timeString: string, availability: any[]): boolean {
     if (!availability || availability.length === 0) {
       this.showCustomAlert('⚠️ Sin Horarios', 'Este programador aún no ha configurado sus horarios.', 'warning');
