@@ -232,6 +232,13 @@ El proyecto está desplegado en Firebase Hosting.
 ---
 
 
+## 8. Conclusiones
+
+* **Integración Exitosa:** Angular + Firebase permitió un desarrollo rápido y modular.
+* **Seguridad Robusta:** Guards y roles garantizan acceso controlado.
+* **Escalabilidad:** Standalone Components soportan crecimiento del proyecto.
+* **Experiencia Visual:** El tema Cyberpunk brinda identidad y claridad.
+
 ## 9. Anexos
 
 Esta sección contiene evidencia visual y documentación complementaria generada durante el desarrollo de Net_Academy. Cada imagen está acompañada de una descripción técnica que explica su relevancia dentro del proyecto.
@@ -285,13 +292,6 @@ Interfaz utilizada por los estudiantes para solicitar una asesoría. Se visualiz
 
 Descripción:
 Pantalla del administrador del sistema. Aquí se muestra la creación, edición y eliminación de programadores, junto con filtros dinámicos por especialidades. Destaca el uso de modales y tablas generadas con componentes reutilizables.
-
-## 8. Conclusiones
-
-* **Integración Exitosa:** Angular + Firebase permitió un desarrollo rápido y modular.
-* **Seguridad Robusta:** Guards y roles garantizan acceso controlado.
-* **Escalabilidad:** Standalone Components soportan crecimiento del proyecto.
-* **Experiencia Visual:** El tema Cyberpunk brinda identidad y claridad.
 
 ---
 
