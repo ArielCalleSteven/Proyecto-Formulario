@@ -200,6 +200,10 @@
             <td class="pl-4 py-3">
               <div class="font-bold text-white">{{ app.programmerName }}</div>
               <div class="text-[10px] text-gray-600">{{ app.programmerEmail }}</div>
+              
+              <span *ngIf="getAppointmentStatus(app) === 'NO_MENTOR'" class="text-[9px] text-red-600 font-bold bg-red-900/10 px-1 rounded-sm block mt-1 w-max">
+                ❌ CUENTA ELIMINADA
+              </span>
             </td>
 
             <td class="py-3 text-gray-300">
@@ -211,8 +215,10 @@
 
             <td class="py-3">
               
-              <ng-container *ngIf="isAppointmentValid(app); else invalidTemplate">
-                <div class="badge badge-sm rounded-sm font-bold border-0 uppercase tracking-widest"
+              <ng-container [ngSwitch]="getAppointmentStatus(app)">
+
+                <div *ngSwitchCase="'VALID'" 
+                     class="badge badge-sm rounded-sm font-bold border-0 uppercase tracking-widest"
                      [ngClass]="{
                        'bg-yellow-500/20 text-yellow-500': app.status === 'Pendiente',
                        'bg-green-500/20 text-green-500': app.status === 'Aprobada',
@@ -220,16 +226,22 @@
                      }">
                   {{ app.status }}
                 </div>
-              </ng-container>
 
-              <ng-template #invalidTemplate>
-                <div class="flex flex-col items-start gap-1">
-                  <div class="badge badge-sm rounded-sm font-bold border-0 uppercase tracking-widest bg-red-600/20 text-red-500 border border-red-500 animate-pulse">
-                    ⚠️ ERROR
+                <div *ngSwitchCase="'NO_MENTOR'" class="flex flex-col items-start gap-1">
+                  <div class="badge badge-sm rounded-sm font-bold border-0 uppercase tracking-widest bg-gray-800 text-gray-400 border-gray-600">
+                    🚫 INACTIVO
                   </div>
-                  <span class="text-[10px] text-red-500 font-bold tracking-wider">HORARIO ELIMINADO: Porfavor solicita otra cita</span>
+                  <span class="text-[9px] text-gray-500 font-bold">MENTOR NO EXISTE</span>
                 </div>
-              </ng-template>
+
+                <div *ngSwitchCase="'NO_SCHEDULE'" class="flex flex-col items-start gap-1">
+                  <div class="badge badge-sm rounded-sm font-bold border-0 uppercase tracking-widest bg-red-600/20 text-red-500 border border-red-500 animate-pulse">
+                    ⚠️ CONFLICTO
+                  </div>
+                  <span class="text-[9px] text-red-500 font-bold tracking-wider">HORARIO CAMBIÓ</span>
+                </div>
+
+              </ng-container>
 
             </td>
 
@@ -241,8 +253,8 @@
                 Yo: {{ app.comment || 'Sin comentario' }}
               </div>
               
-              <div *ngIf="!isAppointmentValid(app)" class="text-[10px] text-red-500 mt-1 font-bold">
-                >> ACTION_REQUIRED: RE-BOOK
+              <div *ngIf="getAppointmentStatus(app) !== 'VALID'" class="text-[9px] text-red-500 mt-1 font-bold">
+                >> SYSTEM: Link Broken. Re-booking Required.
               </div>
             </td>
 
@@ -250,12 +262,14 @@
               <div class="flex justify-end gap-2 opacity-60 group-hover:opacity-100 transition-opacity">
                 <button class="btn btn-xs btn-square bg-[#25D366]/10 border border-[#25D366] text-[#25D366] hover:bg-[#25D366] hover:text-black rounded-sm" 
                         title="Contactar por WhatsApp" 
+                        [disabled]="getAppointmentStatus(app) === 'NO_MENTOR'"
                         (click)="notifyProgrammer(app, 'whatsapp')">
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592z"/></svg>
                 </button>
                 
                 <button class="btn btn-xs btn-square bg-white/10 border border-white text-white hover:bg-white hover:text-black rounded-sm" 
                         title="Enviar Correo" 
+                        [disabled]="getAppointmentStatus(app) === 'NO_MENTOR'"
                         (click)="notifyProgrammer(app, 'email')">
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4Zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1H2Zm13 2.383-4.708 2.825L15 11.105V5.383Zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741ZM1 11.105l4.708-2.897L1 5.383v5.722Z"/></svg>
                 </button>

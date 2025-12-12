@@ -73,27 +73,26 @@ export class HomeComponent implements OnInit {
     if (this.onAlertCloseCallback) this.onAlertCloseCallback();
   }
 
-  
-  isAppointmentValid(app: any): boolean {
+  getAppointmentStatus(app: any): 'VALID' | 'NO_MENTOR' | 'NO_SCHEDULE' {
+    
     const programmer = this.allProgrammers.find(p => p.id === app.programmerId);
     
-    if (!programmer) return false;
+    if (!programmer) return 'NO_MENTOR';
 
     const parts = app.date.split('-'); 
     const dateObj = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2])); 
-    
     const daysMap = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
     const dayName = daysMap[dateObj.getDay()];
 
     const schedule = programmer.availability?.find((s: any) => s.day.toLowerCase() === dayName.toLowerCase());
 
-    if (!schedule) return false; 
+    if (!schedule) return 'NO_SCHEDULE'; 
 
-    if (app.time >= schedule.start && app.time <= schedule.end) {
-      return true; 
+    if (app.time < schedule.start || app.time > schedule.end) {
+       return 'NO_SCHEDULE';
     }
 
-    return false; 
+    return 'VALID'; 
   }
 
   validateSchedule(dateString: string, timeString: string, availability: any[]): boolean {
