@@ -3,8 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms'; 
 import { RouterLink, Router } from '@angular/router'; 
 import { Auth, signOut } from '@angular/fire/auth'; 
-
-// Servicios
 import { UserService } from '../../services/user.service';
 import { AdvisoryService } from '../../services/advisory.service';
 
@@ -20,7 +18,6 @@ export class HomeComponent implements OnInit {
   public auth = inject(Auth);
   private router = inject(Router); 
 
-  // Datos
   allProgrammers: any[] = [];
   filteredProgrammers: any[] = [];
   isLoading: boolean = true;

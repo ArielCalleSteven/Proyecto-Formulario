@@ -167,43 +167,92 @@
 </div>
 
 <div class="modal modal-bottom sm:modal-middle backdrop-blur-sm" [class.modal-open]="isMyAppointmentsModalOpen">
-  <div class="modal-box bg-[#111] border border-gray-700 text-white rounded-sm">
-    <h3 class="font-bold text-lg mb-4 text-[#FF003C]">📬 Mis Solicitudes</h3>
-    <div *ngIf="myAppointments.length === 0" class="text-center opacity-50 py-4 font-mono text-sm text-gray-500">// NO_DATA_FOUND</div>
+  <div class="modal-box w-11/12 max-w-5xl bg-[#111] border border-gray-700 text-white rounded-sm shadow-[0_0_50px_rgba(0,0,0,0.8)]">
     
-    <div class="flex flex-col gap-3">
-      <div *ngFor="let app of myAppointments" class="alert bg-[#0a0a0a] border border-gray-800 rounded-sm"
-           [ngClass]="{
-             'border-l-4 border-l-yellow-500': app.status === 'Pendiente',
-             'border-l-4 border-l-green-500': app.status === 'Aprobada',
-             'border-l-4 border-l-red-500': app.status === 'Rechazada'
-           }">
-        
-        <div class="w-full">
-          <div class="flex justify-between items-start">
-            <div>
-              <h3 class="font-bold text-sm text-white">{{ app.programmerName }}</h3>
-              <div class="text-xs text-gray-500 font-mono">{{ app.date }} // {{ app.time }}</div>
-            </div>
-            
-            <div class="flex gap-1">
-              <button class="btn btn-xs btn-square bg-[#25D366] border-0 text-white hover:bg-[#1da851] rounded-sm" title="WhatsApp" (click)="notifyProgrammer(app, 'whatsapp')">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592z"/></svg>
-              </button>
-              <button class="btn btn-xs btn-square bg-white border-0 text-black hover:bg-gray-200 rounded-sm" title="Correo" (click)="notifyProgrammer(app, 'email')">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4Zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1H2Zm13 2.383-4.708 2.825L15 11.105V5.383Zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741ZM1 11.105l4.708-2.897L1 5.383v5.722Z"/></svg>
-              </button>
-            </div>
-          </div>
-          
-          <div *ngIf="app.programmerResponse" class="mt-2 bg-[#161616] p-2 rounded-sm text-xs text-gray-400 border border-gray-700">
-            <span class="text-[#FF003C]">></span> {{ app.programmerResponse }}
-          </div>
-        </div>
-      </div>
+    <div class="flex justify-between items-center mb-6 border-b border-gray-800 pb-4">
+      <h3 class="font-bold text-xl text-white flex items-center gap-2">
+        <span class="text-[#FF003C]">///</span> REGISTRO DE CONEXIONES
+      </h3>
+      <span class="text-xs font-mono text-gray-500">USER: {{ currentUserEmail }}</span>
     </div>
 
-    <div class="modal-action"><button class="btn btn-ghost text-gray-500 rounded-sm" (click)="closeMyAppointments()">Cerrar</button></div>
+    <div class="overflow-x-auto min-h-[300px]">
+      
+      <div *ngIf="myAppointments.length === 0" class="flex flex-col items-center justify-center h-64 opacity-50 font-mono text-gray-500">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+        <span>>> NO_DATA_FOUND: Sin citas agendadas.</span>
+      </div>
+
+      <table *ngIf="myAppointments.length > 0" class="table w-full text-left font-mono text-xs md:text-sm">
+        <thead class="bg-[#1a1a1a] text-gray-400 uppercase tracking-wider border-b border-gray-700">
+          <tr>
+            <th class="py-3 pl-4">Mentor / ID</th>
+            <th>Fecha & Hora</th>
+            <th>Estado</th>
+            <th>Respuesta / Mensaje</th>
+            <th class="text-right pr-4">Acciones</th>
+          </tr>
+        </thead>
+        
+        <tbody class="divide-y divide-gray-800">
+          <tr *ngFor="let app of myAppointments" class="hover:bg-white/5 transition-colors group">
+            
+            <td class="pl-4 py-3">
+              <div class="font-bold text-white">{{ app.programmerName }}</div>
+              <div class="text-[10px] text-gray-600">{{ app.programmerEmail }}</div>
+            </td>
+
+            <td class="py-3 text-gray-300">
+              <div class="flex flex-col">
+                <span class="font-bold">{{ app.date }}</span>
+                <span class="text-[#FF003C]">{{ app.time }}</span>
+              </div>
+            </td>
+
+            <td class="py-3">
+              <div class="badge badge-sm rounded-sm font-bold border-0 uppercase tracking-widest"
+                   [ngClass]="{
+                     'bg-yellow-500/20 text-yellow-500': app.status === 'Pendiente',
+                     'bg-green-500/20 text-green-500': app.status === 'Aprobada',
+                     'bg-red-500/20 text-red-500': app.status === 'Rechazada'
+                   }">
+                {{ app.status }}
+              </div>
+            </td>
+
+            <td class="py-3 max-w-xs">
+              <div *ngIf="app.programmerResponse" class="text-gray-300 italic mb-1">
+                <span class="text-[#FF003C] font-bold">></span> "{{ app.programmerResponse }}"
+              </div>
+              <div class="text-[10px] text-gray-600 truncate" title="{{ app.comment }}">
+                Yo: {{ app.comment || 'Sin comentario' }}
+              </div>
+            </td>
+
+            <td class="text-right pr-4 py-3">
+              <div class="flex justify-end gap-2 opacity-60 group-hover:opacity-100 transition-opacity">
+                <button class="btn btn-xs btn-square bg-[#25D366]/10 border border-[#25D366] text-[#25D366] hover:bg-[#25D366] hover:text-black rounded-sm" 
+                        title="Contactar por WhatsApp" 
+                        (click)="notifyProgrammer(app, 'whatsapp')">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592z"/></svg>
+                </button>
+                
+                <button class="btn btn-xs btn-square bg-white/10 border border-white text-white hover:bg-white hover:text-black rounded-sm" 
+                        title="Enviar Correo" 
+                        (click)="notifyProgrammer(app, 'email')">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4Zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1H2Zm13 2.383-4.708 2.825L15 11.105V5.383Zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741ZM1 11.105l4.708-2.897L1 5.383v5.722Z"/></svg>
+                </button>
+              </div>
+            </td>
+
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="modal-action border-t border-gray-800 pt-4">
+      <button class="btn btn-ghost text-gray-500 hover:text-white rounded-sm font-mono tracking-widest text-xs" (click)="closeMyAppointments()">CERRAR VENTANA</button>
+    </div>
   </div>
   <form method="dialog" class="modal-backdrop bg-black/90"><button (click)="closeMyAppointments()">close</button></form>
 </div>

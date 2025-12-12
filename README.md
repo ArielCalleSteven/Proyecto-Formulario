@@ -231,6 +231,56 @@ El proyecto está desplegado en Firebase Hosting.
 
 ---
 
+
+## 9. Anexos
+
+Esta sección contiene evidencia visual y documentación complementaria generada durante el desarrollo de Net_Academy. Cada imagen está acompañada de una descripción técnica que explica su relevancia dentro del proyecto.
+
+📎 9.1. Diagramas y Evidencias del Sistema
+
+
+
+<img src="seccion1.jpeg" alt=""> 
+
+📌 Imagen 1 – Arquitectura General del Sistema
+
+Descripción:
+Diagrama de la arquitectura del proyecto donde se muestran los módulos principales de Angular, el flujo de datos reactivo (RxJS) y la integración directa con Firebase (Authentication, Firestore y Hosting). Representa cómo opera la aplicación como una SPA modular.
+
+<img src="seccion2.1.jpeg" alt=""> 
+
+<img src="seccion2.2.jpeg" alt=""> 
+
+<img src="seccion2.3.jpeg" alt=""> 
+
+📌 Imagen 2 – Modelo de Datos en Firestore
+
+Descripción:
+Estructura documental del sistema: colecciones programmers, projects, appointments y students. Se detalla el uso de claves auto generadas, subcolecciones y referencias cruzadas que aseguran eficiencia y escalabilidad en consultas.
+
+<img src="seccion3.jpeg" alt=""> 
+
+
+📌 Imagen 3 – Dashboard del Programador (Command Center)
+
+Descripción:
+Captura de la interfaz principal del programador. Muestra el panel de control donde se gestionan proyectos, solicitudes de asesoría y estadísticas. Refleja la estética Cyberpunk basada en TailwindCSS.
+
+
+
+📌 Imagen 4 – Flujo de Agendamiento del Estudiante
+
+Descripción:
+Interfaz utilizada por los estudiantes para solicitar una asesoría. Se visualiza el formulario validado, las opciones disponibles según la agenda del mentor y el proceso de envío hacia la base de datos en tiempo real.
+
+
+<img src="seccion5.jpeg" alt=""> 
+
+📌 Imagen 5 – Panel de Administración
+
+Descripción:
+Pantalla del administrador del sistema. Aquí se muestra la creación, edición y eliminación de programadores, junto con filtros dinámicos por especialidades. Destaca el uso de modales y tablas generadas con componentes reutilizables.
+
 ## 8. Conclusiones
 
 * **Integración Exitosa:** Angular + Firebase permitió un desarrollo rápido y modular.
