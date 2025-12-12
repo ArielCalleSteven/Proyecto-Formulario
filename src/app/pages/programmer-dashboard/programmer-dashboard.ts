@@ -114,6 +114,12 @@ export class ProgrammerDashboardComponent implements OnInit {
   }
 
   async respondAppointment(app: any, status: 'Aprobada' | 'Rechazada') {
+    
+
+    if (status === 'Rechazada' && !app.replyMessage) {
+        app.replyMessage = "Solicitud rechazada.";
+    }
+
     if (!app.replyMessage) {
       this.showAlert('⚠️ MENSAJE REQUERIDO', 'Por favor escribe un mensaje de confirmación o justificación.', 'warning');
       return;
@@ -121,7 +127,13 @@ export class ProgrammerDashboardComponent implements OnInit {
 
     try {
       await this.advisoryService.updateAppointmentStatus(app.id, status, app.replyMessage);
-      this.showAlert('¡LISTO! 🚀', `La solicitud ha sido ${status} correctamente.`, 'success');
+      
+      if (status === 'Aprobada') {
+        this.showAlert('¡LISTO! 🚀', `La solicitud ha sido aprobada correctamente.`, 'success');
+      } else {
+        this.showAlert('ELIMINADA', `La solicitud ha sido rechazada y archivada.`, 'success');
+      }
+
     } catch (error) {
       console.error('Error actualizando cita:', error);
       this.showAlert('ERROR', 'No se pudo actualizar la cita.', 'error');
@@ -268,6 +280,26 @@ export class ProgrammerDashboardComponent implements OnInit {
       const url = `mailto:${app.studentEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
       window.open(url, '_blank');
     }
+  }
+
+  isScheduleValid(app: any): boolean {
+    if (!this.myProfile || !this.myProfile.availability) return false;
+
+    const parts = app.date.split('-'); 
+    const dateObj = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2])); 
+    
+    const daysMap = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+    const dayName = daysMap[dateObj.getDay()];
+
+    const schedule = this.myProfile.availability.find((s: any) => s.day.toLowerCase() === dayName.toLowerCase());
+
+    if (!schedule) return false; 
+
+    if (app.time >= schedule.start && app.time <= schedule.end) {
+      return true; 
+    }
+
+    return false; 
   }
 
   async logout() { await signOut(this.auth); this.router.navigate(['/login']); }

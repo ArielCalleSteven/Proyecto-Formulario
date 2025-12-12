@@ -54,6 +54,7 @@
             LIMPIAR
           </button>
         </div>
+
         <div *ngIf="appointments.length === 0" class="flex-grow min-h-[300px] border border-gray-800 bg-[#080808] flex flex-col items-center justify-center relative p-8 text-center">
           <div class="p-4 bg-gray-900/50 border border-gray-700 text-gray-400 text-xs tracking-widest font-mono mb-2">
             // NO DATA FOUND
@@ -96,12 +97,21 @@
                 </td>
 
                 <td>
+                  
                   <div *ngIf="app.status === 'Pendiente'" class="flex flex-col gap-2">
-                    <input type="text" [(ngModel)]="app.replyMessage" class="input input-xs bg-[#161616] border-gray-700 text-white w-full rounded-sm focus:border-[#FF003C]" placeholder="Respuesta..." />
+                    
+                    <div *ngIf="!isScheduleValid(app)" class="alert bg-red-900/10 border border-red-900 p-1 rounded-sm text-center">
+                       <span class="text-[9px] text-red-500 font-bold">⚠️ HORARIO ELIMINADO</span>
+                    </div>
+
+                    <input *ngIf="isScheduleValid(app)" type="text" [(ngModel)]="app.replyMessage" class="input input-xs bg-[#161616] border-gray-700 text-white w-full rounded-sm focus:border-[#FF003C]" placeholder="Respuesta..." />
+                    
                     <div class="flex gap-1">
-                      <button class="btn btn-xs bg-[#FF003C] border-0 text-white hover:bg-[#d10030] rounded-sm flex-1" (click)="respondAppointment(app, 'Aprobada')">✔</button>
+                      <button *ngIf="isScheduleValid(app)" class="btn btn-xs bg-[#FF003C] border-0 text-white hover:bg-[#d10030] rounded-sm flex-1" (click)="respondAppointment(app, 'Aprobada')">✔</button>
+                      
                       <button class="btn btn-xs btn-outline border-gray-600 text-gray-400 hover:text-white rounded-sm flex-1" (click)="respondAppointment(app, 'Rechazada')">✖</button>
                     </div>
+
                   </div>
 
                   <div *ngIf="app.status !== 'Pendiente'" class="flex flex-col gap-2 items-start">
@@ -115,8 +125,7 @@
                     </div>
                   </div>
                 </td>
-
-              </tr>
+                </tr>
             </tbody>
           </table>
         </div>
