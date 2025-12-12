@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "public": "dist/portafolio-calle-torres-2025",
+    "public": "dist/gestion-portafolio/browser",
     "ignore": [
       "firebase.json",
       "**/.*",
