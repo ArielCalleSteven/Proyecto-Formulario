@@ -41,7 +41,11 @@
                  required />
           
           <label class="label pb-0" *ngIf="!isRegistering">
-            <a href="#" class="label-text-alt link link-hover text-gray-500 hover:text-accent ml-auto mt-1">¿Olvidaste tu contraseña?</a>
+            <a type="button" 
+               (click)="recoverPassword()" 
+               class="label-text-alt link link-hover text-gray-500 hover:text-accent ml-auto mt-1 cursor-pointer">
+               ¿Olvidaste tu contraseña?
+            </a>
           </label>
         </div>
 

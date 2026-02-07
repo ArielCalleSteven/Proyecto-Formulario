@@ -5,7 +5,7 @@ import { ProgrammerDashboardComponent } from './pages/programmer-dashboard/progr
 import { LoginComponent } from './pages/login/login';
 import { PortfolioViewComponent } from './pages/portfolio-view/portfolio-view';
 
-import { publicGuard, adminGuard, programmerGuard, authGuard } from './guards/auth.guard';
+import { publicGuard, adminGuard, programmerGuard, authGuard, authenticatedGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
   { path: '', component: LoginComponent, canActivate: [publicGuard] },
@@ -20,7 +20,7 @@ export const routes: Routes = [
   { 
     path: 'portfolio/:id',  
     component: PortfolioViewComponent,
-    canActivate: [authGuard] 
+    canActivate: [authenticatedGuard]
   },
 
   { 

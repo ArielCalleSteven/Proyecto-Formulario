@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Auth } from '@angular/fire/auth'; 
 import { UserService } from '../../services/user.service'; 
+import { ProjectService } from '../../services/project.service'; 
 
 @Component({
   selector: 'app-portfolio-view',
@@ -14,6 +15,7 @@ export class PortfolioViewComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private userService = inject(UserService);
+  private projectService = inject(ProjectService); 
   private auth = inject(Auth); 
 
   programmer: any = null;
@@ -33,31 +35,53 @@ export class PortfolioViewComponent implements OnInit {
     }
   }
 
-  async loadProgrammerData(id: string) {
-    try {
-      const docSnap = await this.userService.getProgrammerById(id);
-      
-      if (docSnap.exists()) {
-        const data = docSnap.data();
-        this.programmer = { id: docSnap.id, ...data };
+  loadProgrammerData(id: string) {
+    const userId = Number(id); 
 
-        const projects = this.programmer.projects || [];
-        this.academicProjects = projects.filter((p: any) => p.category === 'Académico');
-        this.workProjects = projects.filter((p: any) => p.category === 'Laboral');
+    this.userService.getProgrammerById(userId).subscribe({
+      next: (user: any) => {
+
+        this.programmer = {
+          ...user,
+          contact: {
+            email: user.email,
+            github: user.github,
+            linkedin: user.linkedin
+          }
+        };
 
         const currentUserEmail = this.auth.currentUser?.email;
-        if (currentUserEmail && data['contact']?.email === currentUserEmail) {
+        if (currentUserEmail && user.email === currentUserEmail) {
           this.isOwner = true;
         }
-      } else {
-        console.error('Programador no encontrado');
+
+        this.loadProjects(userId);
+      },
+      error: (err) => {
+        console.error('Programador no encontrado:', err);
         this.router.navigate(['/home']);
       }
-    } catch (err) {
-      console.error('Error cargando datos:', err);
-    } finally {
-      this.isLoading = false;
-    }
+    });
+  }
+
+  loadProjects(userId: number) {
+    this.projectService.getProjectsByProgrammer(userId).subscribe({
+      next: (projects: any[]) => {
+        const processedProjects = projects.map(p => ({
+          ...p,
+          tech: p.tech ? p.tech.split(',').map((t: string) => t.trim()) : [] 
+        }));
+
+        this.academicProjects = processedProjects.filter((p: any) => p.category === 'Académico');
+        this.workProjects = processedProjects.filter((p: any) => p.category === 'Laboral');
+        
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error('Error cargando proyectos:', err);
+        this.isLoading = false;
+      }
+    });
   }
 
   hasCategory(category: string): boolean {

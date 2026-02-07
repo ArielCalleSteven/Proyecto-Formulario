@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms'; 
 import { Router } from '@angular/router';
-import { Auth, GoogleAuthProvider, signInWithPopup, authState, signInWithEmailAndPassword, createUserWithEmailAndPassword } from '@angular/fire/auth';
+import { Auth, GoogleAuthProvider, signInWithPopup, authState, sendPasswordResetEmail, signInWithEmailAndPassword, createUserWithEmailAndPassword } from '@angular/fire/auth';
 import { take } from 'rxjs/operators';
 
 import { UserService } from '../../services/user.service';
@@ -23,6 +23,7 @@ export class LoginComponent {
   isRegistering: boolean = false; 
   isLoading: boolean = false;
 
+  // Variables para la alerta personalizada
   isAlertOpen: boolean = false;
   alertTitle: string = '';
   alertMessage: string = '';
@@ -31,12 +32,14 @@ export class LoginComponent {
 
   constructor() {
     authState(this.auth).pipe(take(1)).subscribe(user => {
-      if (user && user.email) {
-        this.checkUserRole(user.email);
+      // Solo intentamos redirigir si ya hay sesión y NO tenemos ID guardado
+      if (user && user.email && !localStorage.getItem('userId')) {
+        this.checkUserRoleInBackend(user.email, user.displayName || 'Usuario');
       }
     });
   }
 
+  // --- MÉTODOS DE ALERTA ---
   showCustomAlert(title: string, message: string, type: 'success' | 'error' | 'warning', onClose?: () => void) {
     this.alertTitle = title;
     this.alertMessage = message;
@@ -50,9 +53,10 @@ export class LoginComponent {
     this.onAlertCloseCallback(); 
   }
 
+  // --- LOGIN Y REGISTRO ---
   async onSubmit() {
     if (!this.email || !this.password) {
-      this.showCustomAlert('Campos Incompletos', 'Por favor ingresa correo y contraseña', 'warning');
+      this.showCustomAlert('Atención', 'Por favor ingresa correo y contraseña', 'warning');
       return;
     }
 
@@ -60,65 +64,31 @@ export class LoginComponent {
 
     try {
       if (this.isRegistering) {
+        // Registro
         const credential = await createUserWithEmailAndPassword(this.auth, this.email, this.password);
-        
         if (credential.user && credential.user.email) {
-          
-          const programmerSnapshot = await this.userService.getProgrammerByEmail(credential.user.email);
-          
-          if (programmerSnapshot.empty) {
-            await this.userService.saveStudent(credential.user);
-          } else {
-            console.log('Programador detectado durante el registro.');
-          }
-
-          this.showCustomAlert(
-            '¡Bienvenido!', 
-            'Tu cuenta ha sido configurada exitosamente.', 
-            'success', 
-            () => this.checkUserRole(credential.user.email!) 
-          );
+            const newUser = {
+                email: credential.user.email,
+                name: 'Estudiante Nuevo', 
+                role: 'student'
+            };
+            this.checkUserRoleInBackend(newUser.email, newUser.name);
         }
-
       } else {
+        // Login
         const credential = await signInWithEmailAndPassword(this.auth, this.email, this.password);
         if (credential.user.email) {
-          await this.checkUserRole(credential.user.email);
+          this.checkUserRoleInBackend(credential.user.email, 'Usuario');
         }
       }
     } catch (error: any) {
-      console.error('Error COMPLETO:', error); 
+      console.error('Error Auth:', error); 
+      let msg = 'Error de acceso.';
+      if (error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') msg = 'Contraseña o correo incorrectos.';
+      if (error.code === 'auth/user-not-found') msg = 'Usuario no encontrado.';
+      if (error.code === 'auth/email-already-in-use') msg = 'El correo ya existe.';
       
-      let msg = 'Ocurrió un error inesperado.';
-      
-      switch (error.code) {
-        case 'auth/wrong-password':
-        case 'auth/user-not-found':
-        case 'auth/invalid-credential': 
-          msg = 'Correo o contraseña incorrectos.';
-          break;
-        case 'auth/email-already-in-use':
-          msg = 'Este correo ya está registrado. Por favor inicia sesión.';
-          break;
-        case 'auth/invalid-email':
-          msg = 'El formato del correo no es válido.';
-          break;
-        case 'auth/weak-password':
-          msg = 'La contraseña debe tener al menos 6 caracteres.';
-          break;
-        case 'auth/too-many-requests': 
-          msg = 'Demasiados intentos fallidos. Tu cuenta ha sido bloqueada temporalmente. Intenta más tarde.';
-          break;
-        case 'auth/user-disabled':
-          msg = 'Esta cuenta ha sido inhabilitada.';
-          break;
-        default:
-          msg = `Error desconocido: ${error.code}`;
-          break;
-      }
-
-      this.showCustomAlert('Error de Acceso', msg, 'error');
-    } finally {
+      this.showCustomAlert('Error', msg, 'error');
       this.isLoading = false;
     }
   }
@@ -130,34 +100,72 @@ export class LoginComponent {
       const result = await signInWithPopup(this.auth, provider);
       
       if (result.user.email) {
-        await this.checkUserRole(result.user.email);
+        this.checkUserRoleInBackend(result.user.email, result.user.displayName || 'Usuario Google');
       }
     } catch (error) {
-      console.error('Error con Google:', error);
+      console.error('Error Google:', error);
       this.showCustomAlert('Error', 'No se pudo iniciar sesión con Google', 'error');
       this.isLoading = false;
     }
   }
 
-  async checkUserRole(email: string) {
+  // --- LÓGICA CRÍTICA DE BACKEND ---
+  checkUserRoleInBackend(email: string, name: string) {
     const ADMIN_EMAIL = 'a.calleduma123@gmail.com'; 
-    
-    if (email === ADMIN_EMAIL) {
-      this.router.navigate(['/admin']);
+    const userPayload = { email: email, name: name };
+
+    this.userService.saveStudent(userPayload).subscribe({
+        next: (user: any) => {
+            console.log('✅ USUARIO RECIBIDO:', user);
+            
+            // 1. Guardar Token
+            if (user.token) localStorage.setItem('authToken', user.token);
+
+            // 2. Guardar ID (Crucial para que el Dashboard no falle)
+            if (user.id) {
+                localStorage.setItem('userId', user.id.toString());
+                console.log('💾 ID Guardado:', user.id);
+            } else {
+                // Si no hay ID, NO redirigimos, mostramos error
+                this.showCustomAlert('Error de Datos', 'El sistema no pudo recuperar tu ID de usuario.', 'error');
+                this.isLoading = false;
+                return;
+            }
+
+            // 3. Redirección
+            let rawRole = user.role || user.rol || '';
+            const role = String(rawRole).toLowerCase().trim(); 
+
+            if (email === ADMIN_EMAIL || role === 'admin') {
+                this.router.navigate(['/admin']);
+            } 
+            else if (role === 'programmer' || role === 'programador') {
+                this.router.navigate(['/programmer']);
+            } 
+            else {
+                this.router.navigate(['/home']);
+            }
+        },
+        error: (err) => {
+            console.error('❌ Error Backend:', err);
+            this.showCustomAlert('Error de Conexión', 'No se pudo contactar con el servidor.', 'error');
+            this.isLoading = false;
+        }
+    });
+  }
+
+  // 🔥 ESTA ES LA FUNCIÓN QUE TE FALTABA Y CAUSABA EL ERROR EN BUILD
+  async recoverPassword() {
+    if (!this.email) {
+      this.showCustomAlert('Atención', 'Por favor, escribe tu correo en la casilla primero.', 'warning');
       return;
     }
-
     try {
-      const snapshot = await this.userService.getProgrammerByEmail(email);
-
-      if (!snapshot.empty) {
-        this.router.navigate(['/programmer']);
-      } else {
-        this.router.navigate(['/home']);
-      }
-    } catch (error) {
-      console.error('Error verificando rol:', error);
-      this.router.navigate(['/home']);
+      await sendPasswordResetEmail(this.auth, this.email);
+      this.showCustomAlert('Enviado', 'Revisa tu bandeja de entrada para restablecer tu contraseña.', 'success');
+    } catch (error: any) {
+      console.error(error);
+      this.showCustomAlert('Error', 'No se pudo enviar el correo de recuperación.', 'error');
     }
   }
 }

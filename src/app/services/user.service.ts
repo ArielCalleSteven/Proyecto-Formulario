@@ -1,64 +1,77 @@
 import { Injectable, inject } from '@angular/core';
-import { Firestore, collection, collectionData, addDoc, doc, updateDoc, deleteDoc, query, where, getDocs, setDoc, getDoc } from '@angular/fire/firestore';
-import { Observable } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { Observable, of } from 'rxjs';
+import { map, catchError, tap } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
 
 export interface Programmer {
-  id?: string;
+  id?: number;
   name: string;
-  specialty: string;
+  email: string;
+  role: string;
   description?: string;
   photoUrl?: string;
-  contact: any;
-  availability?: any[];
-  projects?: any[];
+  github?: string;
+  linkedin?: string;
 }
 
 @Injectable({
-  providedIn: 'root' 
+  providedIn: 'root'
 })
 export class UserService {
-  private firestore = inject(Firestore);
-  private collectionName = 'programmers';
+  private http = inject(HttpClient);
+  private baseUrl = `${environment.baseUrl}/usuarios`;
 
-  getProgrammers(): Observable<Programmer[]> {
-    const ref = collection(this.firestore, this.collectionName);
-    return collectionData(ref, { idField: 'id' }) as Observable<Programmer[]>;
-  }
+  // --- MÉTODOS DE LOGIN ---
 
-  getProgrammerById(id: string) {
-    const docRef = doc(this.firestore, this.collectionName, id);
-    return getDoc(docRef);
-  }
-
-  addProgrammer(programmer: Programmer) {
-    const ref = collection(this.firestore, this.collectionName);
-    return addDoc(ref, programmer);
-  }
-
-  updateProgrammer(id: string, data: any) {
-    const docRef = doc(this.firestore, this.collectionName, id);
-    return updateDoc(docRef, data);
-  }
-
-  deleteProgrammer(id: string) {
-    const docRef = doc(this.firestore, this.collectionName, id);
-    return deleteDoc(docRef);
-  }
-
-  getProgrammerByEmail(email: string) {
-    const ref = collection(this.firestore, this.collectionName);
-    const q = query(ref, where('contact.email', '==', email));
-    return getDocs(q);
-  }
-
-  saveStudent(user: any) {
-    const docRef = doc(this.firestore, 'students', user.uid);
-    
-    return setDoc(docRef, {
-      uid: user.uid,
+  // 🔥 MÉTODO CLAVE 1: Login normal / Registro
+  saveStudent(user: any): Observable<any> {
+    const payload = {
       email: user.email,
-      role: 'student', 
-      createdAt: new Date()
-    }, { merge: true }); 
+      name: user.displayName || user.name || 'Estudiante',
+      role: 'student'
+    };
+    return this.http.post<any>(`${this.baseUrl}/google`, payload).pipe(
+        tap(res => console.log('📦 RESPUESTA LOGIN (RAW):', res)), // Mira esto en consola
+        map(response => this.normalizeUser(response)) // <--- AQUÍ SE ARREGLA EL OBJETO
+    );
+  }
+
+  // 🔥 MÉTODO CLAVE 2: Obtener perfil por email
+  getProgrammerByEmail(email: string): Observable<any> {
+    const payload = { email: email, name: 'Verificacion' };
+    return this.http.post<any>(`${this.baseUrl}/google`, payload).pipe(
+        map(response => this.normalizeUser(response))
+    );
+  }
+
+  // --- MÉTODOS ESTÁNDAR ---
+  getProgrammers() { return this.http.get<Programmer[]>(`${this.baseUrl}/programadores`); }
+  getProgrammerById(id: number) { return this.http.get<Programmer>(`${this.baseUrl}/${id}`); }
+  addProgrammer(p: any) { return this.http.post(`${this.baseUrl}/registro`, p); }
+  updateProgrammer(id: number, d: any) { return this.http.put(`${this.baseUrl}/${id}`, d); }
+  deleteProgrammer(id: number) { return this.http.delete(`${this.baseUrl}/${id}`); }
+
+  // 🕵️ DETECTIVE DE IDs (El salvador)
+  private normalizeUser(response: any): any {
+      if (!response) return null;
+
+      // TU BACKEND DEVUELVE: { role: "...", usuario: { id: 1, ... }, token: "..." }
+      // Así que primero intentamos sacar los datos de 'usuario'
+      const userData = response.usuario || response;
+
+      // Aseguramos que el ID exista y sea número
+      const realId = userData.id;
+
+      if (!realId) {
+          console.error('🚨 PELIGRO: ID NO ENCONTRADO EN:', userData);
+      }
+
+      // Devolvemos un objeto plano y limpio para que el Frontend no sufra
+      return {
+          ...userData,       // Todos los datos del usuario (nombre, email, etc)
+          id: realId,        // El ID garantizado en la raíz
+          token: response.token || userData.token // El token garantizado
+      };
   }
 }

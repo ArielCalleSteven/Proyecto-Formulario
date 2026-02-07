@@ -34,30 +34,92 @@ export class HomeComponent implements OnInit {
   myAppointments: any[] = [];
   isMyAppointmentsModalOpen: boolean = false;
 
+  // 🔥 VARIABLE NUEVA PARA EL TURBO (Bloquea el botón)
+  isBookingLoading: boolean = false;
+
   isAlertOpen: boolean = false;
   alertTitle: string = '';
   alertMessage: string = '';
   alertType: 'success' | 'error' | 'warning' = 'error';
   onAlertCloseCallback: () => void = () => {};
 
+  currentTheme: 'dark' | 'light' = 'dark';
+
   ngOnInit() {
     const today = new Date();
     this.minDate = today.toISOString().split('T')[0];
 
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'light' || savedTheme === 'dark') {
+      this.currentTheme = savedTheme;
+    }
+
     this.auth.onAuthStateChanged(user => {
       if (user?.email) {
         this.currentUserEmail = user.email;
-        this.advisoryService.getStudentAppointments(user.email).subscribe(data => {
-          this.myAppointments = data;
-        });
+        this.loadMyAppointments(user.email);
       }
     });
 
-    this.userService.getProgrammers().subscribe((data) => {
-      this.allProgrammers = data;
-      this.applyFilters();
-      this.isLoading = false;
+    this.loadProgrammers();
+  }
+
+  loadProgrammers() {
+    this.userService.getProgrammers().subscribe({
+      next: (data: any[]) => {
+        this.allProgrammers = data.map(p => {
+          const rawDesc = p.description || '';
+          const parts = rawDesc.split('|||');
+          const realSpecialty = parts.length > 1 ? parts[0].trim() : (p.role === 'student' ? 'N/A' : 'Programmer');
+          const realBio = parts.length > 1 ? parts[1].trim() : rawDesc;
+
+          let realAvailability = [];
+          if (p.availability) {
+              try {
+                  realAvailability = (typeof p.availability === 'string') ? JSON.parse(p.availability) : p.availability;
+              } catch (e) {
+                  console.error('Error leyendo horario de:', p.name);
+                  realAvailability = [];
+              }
+          }
+
+          return {
+            id: p.id,
+            name: p.name,
+            specialty: realSpecialty,
+            description: realBio,
+            photoUrl: p.photoUrl,
+            contact: {
+              email: p.email,
+              github: p.github,
+              linkedin: p.linkedin
+            },
+            availability: realAvailability
+          };
+        });
+
+        this.applyFilters();
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error('Error cargando programadores:', err);
+        this.isLoading = false;
+      }
     });
+  }
+
+  loadMyAppointments(email: string) {
+    this.advisoryService.getStudentAppointments(email).subscribe({
+      next: (data) => {
+        this.myAppointments = data;
+      },
+      error: (err) => console.error(err)
+    });
+  }
+
+  setTheme(theme: 'dark' | 'light') {
+    this.currentTheme = theme;
+    localStorage.setItem('theme', theme); 
   }
 
   showCustomAlert(title: string, message: string, type: 'success' | 'error' | 'warning' = 'error', onClose?: () => void) {
@@ -74,8 +136,7 @@ export class HomeComponent implements OnInit {
   }
 
   getAppointmentStatus(app: any): 'VALID' | 'NO_MENTOR' | 'NO_SCHEDULE' {
-    
-    const programmer = this.allProgrammers.find(p => p.id === app.programmerId);
+    const programmer = this.allProgrammers.find(p => String(p.id) === String(app.programmerId));
     
     if (!programmer) return 'NO_MENTOR';
 
@@ -97,7 +158,7 @@ export class HomeComponent implements OnInit {
 
   validateSchedule(dateString: string, timeString: string, availability: any[]): boolean {
     if (!availability || availability.length === 0) {
-      this.showCustomAlert('⚠️ Sin Horarios', 'Este programador aún no ha configurado sus horarios.', 'warning');
+      this.showCustomAlert('Sin Agenda', 'El mentor no tiene horarios disponibles.', 'warning');
       return false; 
     }
 
@@ -126,7 +187,7 @@ export class HomeComponent implements OnInit {
     const emailDestino = app.programmerEmail; 
     
     if (method === 'email' && !emailDestino) {
-      this.showCustomAlert('Error', 'No se encontró el correo del programador para esta cita.', 'warning');
+      this.showCustomAlert('Error', 'No se encontró el correo del programador.', 'warning');
       return;
     }
 
@@ -142,7 +203,11 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  async saveAppointment() {
+  // 👇 AQUÍ ESTÁ EL TURBO ACTIVADO 🏎️
+  saveAppointment() {
+    // 1. SI YA SE DIO CLICK, NO HACEMOS NADA (Bloqueo Anti-Spam)
+    if (this.isBookingLoading) return;
+
     if (!this.appointment.date || !this.appointment.time) {
       this.showCustomAlert('Campos Vacíos', 'Por favor selecciona fecha y hora.', 'warning');
       return;
@@ -160,36 +225,49 @@ export class HomeComponent implements OnInit {
       return;
     }
 
-    try {
-      const newBooking = {
-        studentEmail: this.currentUserEmail,
-        programmerId: this.selectedProgrammer.id,
-        programmerName: this.selectedProgrammer.name,
-        programmerEmail: this.selectedProgrammer.contact?.email || '', 
-        date: this.appointment.date,
-        time: this.appointment.time,
-        comment: this.appointment.comment,
-        status: 'Pendiente', 
-        createdAt: new Date()
-      };
+    // 2. ACTIVAMOS EL BLOQUEO DEL BOTÓN
+    this.isBookingLoading = true;
 
-      await this.advisoryService.createAppointment(newBooking);
-      
-      this.closeModal(); 
-      
-      this.showCustomAlert(
-        '¡Solicitud Enviada!', 
-        'La cita se guardó en el sistema.\n\nSi deseas notificar formalmente por correo ahora, da clic en Continuar.', 
-        'success',
-        () => {
-           this.notifyProgrammer(newBooking, 'email');
-        }
-      );
+    const newBooking = {
+      programmerId: this.selectedProgrammer.id, 
+      clientEmail: this.currentUserEmail,       
+      clientName: 'Estudiante',
+      programmerName: this.selectedProgrammer.name, 
+      programmerEmail: this.selectedProgrammer.contact?.email, 
+      date: this.appointment.date,
+      time: this.appointment.time,
+      topic: this.appointment.comment,          
+      status: 'Pendiente'
+    };
 
-    } catch (error) {
-      console.error('Error al agendar:', error);
-      this.showCustomAlert('Error', 'Hubo un error al guardar la cita.', 'error');
-    }
+    this.advisoryService.createAppointment(newBooking).subscribe({
+      next: (res) => {
+        // 3. TURBO UPDATE: Agregamos a la lista local INMEDIATAMENTE
+        // No esperamos a recargar toda la BD. El número 32 cambiará a 33 al instante.
+        const appointmentToPush = { ...newBooking, id: res.id || Date.now() }; // Usamos ID del server o temporal
+        this.myAppointments.push(appointmentToPush);
+
+        this.closeModal(); 
+        
+        // Desbloqueamos por si acaso (aunque el modal ya se cerró)
+        this.isBookingLoading = false; 
+
+        this.showCustomAlert(
+          '¡Solicitud Enviada!', 
+          'La cita se guardó correctamente.', 
+          'success',
+          () => {
+             // ✅ AQUÍ ESTÁ EL NOTIFY QUE PEDISTE QUE NO BORRARA
+             this.notifyProgrammer(newBooking, 'email');
+          }
+        );
+      },
+      error: (error) => {
+        console.error('Error al agendar:', error);
+        this.isBookingLoading = false; // 4. SI FALLA, DESBLOQUEAMOS EL BOTÓN
+        this.showCustomAlert('Error', 'Hubo un error al guardar la cita en el servidor.', 'error');
+      }
+    });
   }
 
   openBookingModal(programmer: any) { this.selectedProgrammer = programmer; this.appointment = { date: '', time: '', comment: '' }; this.isModalOpen = true; }
