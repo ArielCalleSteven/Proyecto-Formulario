@@ -5,6 +5,7 @@ import { RouterLink, Router } from '@angular/router';
 import { Auth, signOut } from '@angular/fire/auth'; 
 import { UserService } from '../../services/user.service';
 import { AdvisoryService } from '../../services/advisory.service';
+import emailjs from '@emailjs/browser';
 
 @Component({
   selector: 'app-home',
@@ -203,9 +204,7 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  // 👇 AQUÍ ESTÁ EL TURBO ACTIVADO 🏎️
-  saveAppointment() {
-    // 1. SI YA SE DIO CLICK, NO HACEMOS NADA (Bloqueo Anti-Spam)
+saveAppointment() {
     if (this.isBookingLoading) return;
 
     if (!this.appointment.date || !this.appointment.time) {
@@ -225,7 +224,6 @@ export class HomeComponent implements OnInit {
       return;
     }
 
-    // 2. ACTIVAMOS EL BLOQUEO DEL BOTÓN
     this.isBookingLoading = true;
 
     const newBooking = {
@@ -233,38 +231,53 @@ export class HomeComponent implements OnInit {
       clientEmail: this.currentUserEmail,       
       clientName: 'Estudiante',
       programmerName: this.selectedProgrammer.name, 
-      programmerEmail: this.selectedProgrammer.contact?.email, 
+      programmerEmail: this.selectedProgrammer.contact?.email || 'a.calleduma123@gmail.com', 
       date: this.appointment.date,
       time: this.appointment.time,
-      topic: this.appointment.comment,          
+      topic: this.appointment.comment,           
       status: 'Pendiente'
     };
 
     this.advisoryService.createAppointment(newBooking).subscribe({
       next: (res) => {
-        // 3. TURBO UPDATE: Agregamos a la lista local INMEDIATAMENTE
-        // No esperamos a recargar toda la BD. El número 32 cambiará a 33 al instante.
-        const appointmentToPush = { ...newBooking, id: res.id || Date.now() }; // Usamos ID del server o temporal
+        // --- 📧 INICIO ENVÍO DE CORREO (EmailJS) ---
+        const templateParams = {
+          to_name: this.selectedProgrammer.name, 
+          to_email: 'a.calleduma123@gmail.com', // 🔴 FORZAMOS TU CORREO PARA LA PRUEBA
+          from_name: 'Sistema de Asesorías (Ariel Calle)',
+          message: `NUEVA SOLICITUD:\n\n📅 Fecha: ${this.appointment.date}\n⏰ Hora: ${this.appointment.time}\n👤 De: ${this.currentUserEmail}\n💬 Tema: ${this.appointment.comment || 'General'}`
+        };
+
+        console.log('📬 Intentando enviar correo a:', templateParams.to_email);
+
+        emailjs.send('service_kdoxcop', 'template_l8zbe2s', templateParams, 'V6KlZE0OzuuMFbaCh')
+          .then((response) => {
+            console.log('✅ ¡EL CARTERO LLEGÓ!', response.status, response.text);
+          })
+          .catch((err) => {
+            console.error('❌ EL CARTERO SE PERDIÓ:', err);
+          });
+        // --- 📧 FIN ENVÍO DE CORREO ---
+
+        const appointmentToPush = { ...newBooking, id: res.id || Date.now() };
         this.myAppointments.push(appointmentToPush);
 
         this.closeModal(); 
-        
-        // Desbloqueamos por si acaso (aunque el modal ya se cerró)
         this.isBookingLoading = false; 
 
         this.showCustomAlert(
           '¡Solicitud Enviada!', 
-          'La cita se guardó correctamente.', 
+          'La cita se guardó y se envió la notificación al correo.', 
           'success',
           () => {
-             // ✅ AQUÍ ESTÁ EL NOTIFY QUE PEDISTE QUE NO BORRARA
+             // Tu función de notificación extra
              this.notifyProgrammer(newBooking, 'email');
           }
         );
       },
       error: (error) => {
         console.error('Error al agendar:', error);
-        this.isBookingLoading = false; // 4. SI FALLA, DESBLOQUEAMOS EL BOTÓN
+        this.isBookingLoading = false; 
         this.showCustomAlert('Error', 'Hubo un error al guardar la cita en el servidor.', 'error');
       }
     });

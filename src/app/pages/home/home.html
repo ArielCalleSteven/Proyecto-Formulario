@@ -351,15 +351,14 @@
             </td>
 
             <td class="py-3 max-w-xs">
-<div *ngIf="app.responseMessage" class="italic mb-1"
-     [ngClass]="currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-800'">
-  <span class="text-[#FF003C] font-bold">></span> "{{ app.responseMessage }}"
-</div>
-
-<div class="text-[10px] truncate" title="{{ app.topic }}"
-     [ngClass]="currentTheme === 'dark' ? 'text-gray-600' : 'text-gray-500'">
-  Yo: {{ app.topic || 'Sin comentario' }}
-</div>
+              <div *ngIf="app.responseMessage" class="italic mb-1"
+                   [ngClass]="currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-800'">
+                <span class="text-[#FF003C] font-bold">></span> "{{ app.responseMessage }}"
+              </div>
+              <div class="text-[10px] truncate" title="{{ app.comment }}"
+                   [ngClass]="currentTheme === 'dark' ? 'text-gray-600' : 'text-gray-500'">
+                Yo: {{ app.comment || 'Sin comentario' }}
+              </div>
               
               <div *ngIf="getAppointmentStatus(app) !== 'VALID'" class="text-[9px] text-red-500 mt-1 font-bold">
                 >> SYSTEM: Link Broken. Re-booking Required.
